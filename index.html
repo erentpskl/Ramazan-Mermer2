@@ -3,232 +3,121 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ramazan Mermer Katalog</title>
+<title>Katalog</title>
 
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*{box-sizing:border-box;margin:0;padding:0}
 
-body {
-  background: #f2f2f2;
-  font-family: sans-serif;
-  color: #222;
+body{font-family:sans-serif;background:#f2f2f2}
+
+header{
+  background:#2c2c2c;
+  color:#fff;
+  padding:20px;
+  text-align:center;
+  position:sticky;
+  top:0;
 }
 
-header {
-  background: #2c2c2c;
-  color: #fff;
-  text-align: center;
-  padding: 20px;
-  font-weight: bold;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+.list{
+  padding:15px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  padding-bottom:120px;
 }
 
-#adminBar {
-  display: none;
-  background: #fff3cd;
-  padding: 10px;
-  text-align: center;
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: #856404;
+@media(max-width:600px){
+  .list{grid-template-columns:1fr;}
 }
 
-/* LIST CONTAINER */
-.list {
-  padding: 15px;
-  padding-bottom: 140px;
+.card{
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
-/* ================= GRID MODE ================= */
-.list.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 15px;
+.card img{
+  width:100%;
+  aspect-ratio:9/16;
+  object-fit:cover;
 }
 
-@media (min-width: 600px) {
-  .list.grid { grid-template-columns: repeat(2, 1fr); }
+.card-info{
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
 }
 
-@media (min-width: 900px) {
-  .list.grid { grid-template-columns: repeat(3, 1fr); }
+#lockBtn,#addBtn{
+  position:fixed;
+  bottom:20px;
+  padding:12px 18px;
+  border:none;
+  border-radius:30px;
+  color:#fff;
 }
 
-@media (min-width: 1200px) {
-  .list.grid { grid-template-columns: repeat(4, 1fr); }
+#lockBtn{right:20px;background:#333}
+#addBtn{left:20px;background:green;display:none}
+
+#colSelect{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:10px;
+  border-radius:20px;
 }
-
-/* ================= TABLE MODE ================= */
-.list.table-view {
-  display: block;
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  justify-content:center;
+  align-items:flex-end;
 }
-
-.list.table-view .card {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 10px;
+.overlay.open{display:flex}
+.sheet{
+  background:#fff;
+  width:100%;
+  max-width:500px;
+  padding:20px;
+  border-radius:20px 20px 0 0;
 }
-
-.list.table-view .card img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 10px;
-  aspect-ratio: unset;
-}
-
-/* CARD */
-.card {
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.card:hover {
-  transform: scale(1.02);
-}
-
-.card img {
-  width: 100%;
-  aspect-ratio: 9/16;
-  object-fit: cover;
-}
-
-.card-info {
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* BUTTONS */
-#lockBtn, #addBtn, #viewBtn {
-  position: fixed;
-  bottom: 20px;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 50px;
-  color: #fff;
-  cursor: pointer;
-  font-weight: bold;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  z-index: 100;
-}
-
-#lockBtn { right: 20px; background: #2c2c2c; }
-#addBtn { left: 20px; background: #2a6e2a; display: none; }
-#viewBtn { left: 50%; transform: translateX(-50%); background: #444; }
-
-/* MODAL */
-.overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 1000;
-}
-
-.overlay.open { display: flex; }
-
-.sheet {
-  background: #fff;
-  width: 100%;
-  max-width: 500px;
-  border-radius: 20px 20px 0 0;
-  padding: 20px;
-}
-
-.fg { margin-bottom: 12px; }
-.fg input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
-
-.sbtns { display: flex; gap: 10px; }
-.sbtn {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* PASS */
-#passModal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
-
-#passModal.open { display: flex; }
-
-.pbox {
-  background: #fff;
-  padding: 30px;
-  border-radius: 15px;
-  width: 280px;
-  text-align: center;
-}
-
-.pbox input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  text-align: center;
+.sheet input{
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="adminBar">YÖNETİCİ MODU AKTİF</div>
-<header>RAMAZAN MERMER KATALOG</header>
+<header>KATALOG</header>
 
 <div class="list" id="list"></div>
 
-<button id="lockBtn" onclick="openPass()">🔐 Yönetici</button>
-<button id="addBtn" onclick="openAdd()">➕ Yeni Ekle</button>
-<button id="viewBtn" onclick="toggleView()">📦 Kart Görünüm</button>
+<button id="lockBtn" onclick="openPass()">Admin</button>
+<button id="addBtn" onclick="openAdd()">Ekle</button>
 
-<!-- EDIT MODAL -->
+<select id="colSelect" onchange="setColumns()">
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4" selected>4</option>
+</select>
+
 <div class="overlay" id="editOverlay">
   <div class="sheet">
-    <h3 id="sheetTitle">Model</h3>
+    <input id="name" placeholder="Ad">
+    <input id="price" placeholder="Fiyat">
+    <input id="img" placeholder="Resim">
 
-    <div class="fg"><input id="f-name" placeholder="Model adı"></div>
-    <div class="fg"><input id="f-price" placeholder="Fiyat"></div>
-    <div class="fg"><input id="f-img" placeholder="Resim URL"></div>
-
-    <div class="sbtns">
-      <button class="sbtn" onclick="closeEdit()">İptal</button>
-      <button class="sbtn" onclick="saveModel()" style="background:#2c2c2c;color:#fff">Kaydet</button>
-    </div>
-
-    <p id="delBtn" onclick="deleteModel()" style="color:red;text-align:center;margin-top:15px;cursor:pointer">Sil</p>
-  </div>
-</div>
-
-<!-- PASS MODAL -->
-<div id="passModal">
-  <div class="pbox">
-    <h3>Yönetici Girişi</h3>
-    <input type="password" id="passIn">
-    <button onclick="checkPass()" style="width:100%">Giriş</button>
-    <button onclick="closePass()">Kapat</button>
+    <button onclick="save()">Kaydet</button>
+    <p onclick="del()" style="color:red;cursor:pointer">Sil</p>
   </div>
 </div>
 
@@ -236,130 +125,100 @@ header {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, push, set, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD6TKF0EJbmJtl9jVNKS-Lz24weFjYKGeE",
-  authDomain: "ramazan-mermer.firebaseapp.com",
-  databaseURL: "https://ramazan-mermer-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "ramazan-mermer",
-  storageBucket: "ramazan-mermer.firebasestorage.app",
-  messagingSenderId: "364821737549",
-  appId: "1:364821737549:web:1422a2eee2544d13f5ec04"
-};
+const app = initializeApp({
+apiKey:"AIzaSyD6TKF0EJbmJtl9jVNKS-Lz24weFjYKGeE",
+authDomain:"ramazan-mermer.firebaseapp.com",
+databaseURL:"https://ramazan-mermer-default-rtdb.europe-west1.firebasedatabase.app",
+projectId:"ramazan-mermer"
+});
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const db=getDatabase(app);
 
-let editId = null;
-let isAdmin = false;
-let isGrid = true;
+let editId=null;
+let isAdmin=false;
 
-const list = document.getElementById("list");
+const list=document.getElementById("list");
+const modal=document.getElementById("editOverlay");
+
+const nameEl=document.getElementById("name");
+const priceEl=document.getElementById("price");
+const imgEl=document.getElementById("img");
 
 /* RENDER */
-function renderList() {
-  onValue(ref(db, "models"), snap => {
-    list.innerHTML = "";
-    const data = snap.val();
-    if (!data) return;
+onValue(ref(db,"models"),snap=>{
+list.innerHTML="";
+const data=snap.val();
+if(!data) return;
 
-    Object.entries(data).forEach(([id, item]) => {
-      const div = document.createElement("div");
-      div.className = "card";
-      div.innerHTML = `
-        <img src="${item.img}">
-        <div class="card-info">
-          <div>${item.name}</div>
-          <div>${item.price} ₺</div>
-        </div>
-      `;
-      if (isAdmin) div.onclick = () => openEdit(id, item);
-      list.appendChild(div);
-    });
-  });
+Object.entries(data).forEach(([id,item])=>{
+const div=document.createElement("div");
+div.className="card";
+div.innerHTML=`
+<img src="${item.img}">
+<div class="card-info">
+<div>${item.name}</div>
+<div>${item.price}₺</div>
+</div>
+`;
+if(isAdmin) div.onclick=()=>edit(id,item);
+list.appendChild(div);
+});
+});
+
+/* ADMIN */
+window.openPass=async()=>{
+const pass=prompt("Şifre");
+const snap=await get(ref(db,"adminPass"));
+
+if(pass==snap.val()){
+isAdmin=true;
+addBtn.style.display="block";
+lockBtn.style.display="none";
 }
-
-renderList();
-
-/* PASS */
-window.checkPass = async () => {
-  const val = document.getElementById("passIn").value;
-  const snap = await get(ref(db, "adminPass"));
-
-  if (val === String(snap.val())) {
-    isAdmin = true;
-    document.getElementById("addBtn").style.display = "block";
-    document.getElementById("adminBar").style.display = "block";
-    document.getElementById("lockBtn").style.display = "none";
-    document.getElementById("passModal").classList.remove("open");
-    renderList();
-  } else alert("Hatalı şifre");
 };
 
-window.openPass = () => document.getElementById("passModal").classList.add("open");
-window.closePass = () => document.getElementById("passModal").classList.remove("open");
-
-/* ADD / EDIT */
-window.openAdd = () => {
-  editId = null;
-  openEditBox("", "", "");
-  document.getElementById("sheetTitle").innerText = "Yeni Model";
-  document.getElementById("delBtn").style.display = "none";
+window.openAdd=()=>{
+editId=null;
+nameEl.value="";
+priceEl.value="";
+imgEl.value="";
+modal.classList.add("open");
 };
 
-window.openEdit = (id, item) => {
-  editId = id;
-  openEditBox(item.name, item.price, item.img);
-  document.getElementById("sheetTitle").innerText = "Düzenle";
-  document.getElementById("delBtn").style.display = "block";
+window.edit=(id,item)=>{
+editId=id;
+nameEl.value=item.name;
+priceEl.value=item.price;
+imgEl.value=item.img;
+modal.classList.add("open");
 };
 
-function openEditBox(n,p,i){
-  document.getElementById("f-name").value = n;
-  document.getElementById("f-price").value = p;
-  document.getElementById("f-img").value = i;
-  document.getElementById("editOverlay").classList.add("open");
+window.save=()=>{
+if(editId){
+set(ref(db,"models/"+editId),{
+name:nameEl.value,
+price:priceEl.value,
+img:imgEl.value
+});
+}else{
+push(ref(db,"models"),{
+name:nameEl.value,
+price:priceEl.value,
+img:imgEl.value
+});
 }
-
-window.closeEdit = () =>
-  document.getElementById("editOverlay").classList.remove("open");
-
-window.saveModel = () => {
-  const name = document.getElementById("f-name").value;
-  const price = document.getElementById("f-price").value;
-  const img = document.getElementById("f-img").value;
-
-  if (!name || !price || !img) return;
-
-  if (editId) set(ref(db,"models/"+editId),{name,price,img});
-  else push(ref(db,"models"),{name,price,img});
-
-  closeEdit();
+modal.classList.remove("open");
 };
 
-window.deleteModel = () => {
-  if (!editId) return;
-  remove(ref(db,"models/"+editId));
-  closeEdit();
+window.del=()=>{
+remove(ref(db,"models/"+editId));
+modal.classList.remove("open");
 };
 
-/* VIEW TOGGLE (GRID / TABLE) */
-window.toggleView = () => {
-  const btn = document.getElementById("viewBtn");
-
-  isGrid = !isGrid;
-
-  if (isGrid) {
-    list.classList.add("grid");
-    list.classList.remove("table-view");
-    btn.innerText = "📦 Kart Görünüm";
-  } else {
-    list.classList.remove("grid");
-    list.classList.add("table-view");
-    btn.innerText = "📋 Tablo Görünüm";
-  }
+window.setColumns=()=>{
+const v=document.getElementById("colSelect").value;
+list.style.gridTemplateColumns=`repeat(${v},1fr)`;
 };
-
-document.getElementById("list").classList.add("grid");
 </script>
 
 </body>
