@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -18,6 +17,7 @@ header {
   font-weight: bold;
   position: sticky;
   top: 0;
+  z-index: 10;
 }
 
 #adminBar {
@@ -26,6 +26,8 @@ header {
   padding: 10px;
   text-align: center;
   font-size: 0.8rem;
+  font-weight: bold;
+  color: #856404;
 }
 
 .list {
@@ -41,6 +43,7 @@ header {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  cursor: pointer;
 }
 
 .card img {
@@ -53,16 +56,20 @@ header {
   padding: 15px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 #lockBtn, #addBtn {
   position: fixed;
   bottom: 20px;
-  padding: 15px 20px;
+  padding: 15px 25px;
   border: none;
   border-radius: 50px;
   color: #fff;
   cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 100;
 }
 
 #lockBtn { right: 20px; background: #2c2c2c; }
@@ -75,6 +82,7 @@ header {
   background: rgba(0,0,0,0.7);
   justify-content: center;
   align-items: flex-end;
+  z-index: 1000;
 }
 
 .overlay.open { display: flex; }
@@ -85,36 +93,53 @@ header {
   max-width: 500px;
   border-radius: 20px 20px 0 0;
   padding: 20px;
+  animation: slideUp 0.3s ease-out;
 }
 
-.fg { margin-bottom: 10px; }
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.fg { margin-bottom: 12px; }
 .fg input {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
+  font-size: 1rem;
 }
 
-.sbtns { display: flex; gap: 10px; }
-.sbtn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; }
+.sbtns { display: flex; gap: 10px; margin-top: 10px; }
+.sbtn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
 #passModal {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.85);
   justify-content: center;
   align-items: center;
+  z-index: 2000;
 }
 
 #passModal.open { display: flex; }
 
 .pbox {
   background: #fff;
-  padding: 25px;
-  border-radius: 10px;
-  width: 250px;
+  padding: 30px;
+  border-radius: 15px;
+  width: 280px;
   text-align: center;
+}
+
+.pbox input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 1.2rem;
+  letter-spacing: 5px;
 }
 </style>
 </head>
@@ -127,33 +152,37 @@ header {
 <div class="list" id="list"></div>
 
 <button id="lockBtn" onclick="openPass()">🔒 Yönetici</button>
-<button id="addBtn" onclick="openAdd()">+ Yeni</button>
+<button id="addBtn" onclick="openAdd()">+ Yeni Ekle</button>
 
 <div class="overlay" id="editOverlay">
   <div class="sheet">
+    <h3 id="sheetTitle" style="margin-bottom:15px">Model Düzenle</h3>
     <div class="fg"><input id="f-name" placeholder="Model adı"></div>
-    <div class="fg"><input id="f-price" placeholder="Fiyat"></div>
-    <div class="fg"><input id="f-img" placeholder="Resim linki"></div>
+    <div class="fg"><input id="f-price" placeholder="Fiyat (Sadece rakam)"></div>
+    <div class="fg"><input id="f-img" placeholder="Resim linki (URL)"></div>
 
     <div class="sbtns">
-      <button class="sbtn" onclick="closeEdit()">İptal</button>
+      <button class="sbtn" onclick="closeEdit()" style="background:#eee">İptal</button>
       <button class="sbtn" onclick="saveModel()" style="background:#2c2c2c;color:#fff">Kaydet</button>
     </div>
 
-    <p onclick="deleteModel()" style="color:red;text-align:center;margin-top:10px;cursor:pointer">Sil</p>
+    <p id="delBtn" onclick="deleteModel()" style="color:red;text-align:center;margin-top:20px;cursor:pointer;font-weight:bold">Bu Modeli Sil</p>
   </div>
 </div>
 
 <div id="passModal">
   <div class="pbox">
-    <input type="password" id="passIn" placeholder="Şifre">
-    <button onclick="checkPass()" style="margin-top:10px;width:100%">Giriş</button>
+    <h3>Yönetici Girişi</h3>
+    <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">Lütfen şifreyi giriniz</p>
+    <input type="password" id="passIn" placeholder="****">
+    <button onclick="checkPass()" style="width:100%; padding:12px; background:#2c2c2c; color:#fff; border:none; border-radius:8px; cursor:pointer">Giriş Yap</button>
+    <button onclick="closePass()" style="margin-top:10px; background:none; border:none; color: #999; cursor:pointer">Kapat</button>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, push, set, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD6TKF0EJbmJtl9jVNKS-Lz24weFjYKGeE",
@@ -172,41 +201,75 @@ const db = getDatabase(app);
 let editId = null;
 let isAdmin = false;
 
-const list = document.getElementById("list");
+// Verileri Dinle ve Listele
+const renderList = () => {
+    onValue(ref(db, "models"), snap => {
+      list.innerHTML = "";
+      const data = snap.val();
+      if (!data) return;
 
-onValue(ref(db, "models"), snap => {
-  list.innerHTML = "";
-  const data = snap.val();
-  if (!data) return;
+      Object.entries(data).forEach(([id, item]) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <img src="${item.img}">
+          <div class="card-info">
+            <div style="font-weight:bold">${item.name}</div>
+            <div style="color:#2a6e2a; font-weight:bold">${item.price} ₺</div>
+          </div>
+        `;
+        if (isAdmin) div.onclick = () => openEdit(id, item);
+        list.appendChild(div);
+      });
+    });
+};
 
-  Object.entries(data).forEach(([id, item]) => {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-      <img src="${item.img}">
-      <div class="card-info">
-        <div>${item.name}</div>
-        <div>${item.price} ₺</div>
-      </div>
-    `;
-    if (isAdmin) div.onclick = () => openEdit(id, item);
-    list.appendChild(div);
-  });
-});
+renderList();
+
+// Yönetici Şifre Kontrolü (Firebase'den Çeker)
+window.checkPass = async () => {
+  const inputPass = document.getElementById("passIn").value;
+  
+  try {
+      const snapshot = await get(ref(db, "adminPass"));
+      const correctPass = snapshot.val();
+
+      if (inputPass === String(correctPass)) {
+        isAdmin = true;
+        document.getElementById("addBtn").style.display = "block";
+        document.getElementById("adminBar").style.display = "block";
+        document.getElementById("lockBtn").style.display = "none";
+        document.getElementById("passModal").classList.remove("open");
+        alert("Giriş Başarılı! Artık modellere tıklayarak düzenleyebilir veya yeni ekleyebilirsiniz.");
+        renderList(); // Admin yetkisiyle listeyi tekrar yükle
+      } else {
+        alert("Hatalı şifre!");
+      }
+  } catch (error) {
+      alert("Hata: Veritabanına bağlanılamadı.");
+  }
+};
+
+window.openPass = () => document.getElementById("passModal").classList.add("open");
+window.closePass = () => document.getElementById("passModal").classList.remove("open");
 
 window.openAdd = () => {
   editId = null;
+  document.getElementById("sheetTitle").innerText = "Yeni Model Ekle";
   document.getElementById("f-name").value = "";
   document.getElementById("f-price").value = "";
   document.getElementById("f-img").value = "";
+  document.getElementById("delBtn").style.display = "none";
   document.getElementById("editOverlay").classList.add("open");
 };
 
 window.openEdit = (id, item) => {
   editId = id;
+  document.getElementById("sheetTitle").innerText = "Modeli Düzenle";
   document.getElementById("f-name").value = item.name;
   document.getElementById("f-price").value = item.price;
   document.getElementById("f-img").value = item.img;
+  document.getElementById("delBtn").style.display = "block";
   document.getElementById("editOverlay").classList.add("open");
 };
 
@@ -217,7 +280,7 @@ window.saveModel = () => {
   const price = document.getElementById("f-price").value;
   const img = document.getElementById("f-img").value;
 
-  if (!name || !price || !img) return alert("Boş bırakma");
+  if (!name || !price || !img) return alert("Lütfen tüm alanları doldurun");
 
   if (editId)
     set(ref(db, "models/" + editId), { name, price, img });
@@ -229,22 +292,12 @@ window.saveModel = () => {
 
 window.deleteModel = () => {
   if (!editId) return;
-  remove(ref(db, "models/" + editId));
-  closeEdit();
-};
-
-window.openPass = () => document.getElementById("passModal").classList.add("open");
-
-window.checkPass = () => {
-  if (document.getElementById("passIn").value === "1234") {
-    isAdmin = true;
-    document.getElementById("addBtn").style.display = "block";
-    document.getElementById("adminBar").style.display = "block";
-    document.getElementById("passModal").classList.remove("open");
-  } else alert("Hatalı şifre");
+  if(confirm("Bu modeli silmek istediğinize emin misiniz?")) {
+      remove(ref(db, "models/" + editId));
+      closeEdit();
+  }
 };
 </script>
 
 </body>
 </html>
-```
