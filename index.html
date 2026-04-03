@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mezar Kataloğu</title>
+<title>Ramazan Mermer - Mezar Kataloğu</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #f2f2f2; font-family: Arial, sans-serif; color: #222; }
@@ -26,7 +26,6 @@ header {
 
 .card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
 
-/* 🔥 BURASI DEĞİŞTİ (9:16) */
 .card img {
   width: 100%;
   aspect-ratio: 9/16;
@@ -48,7 +47,6 @@ header {
   border-radius: 6px; white-space: nowrap;
 }
 
-/* Admin düzenle butonu */
 .edit-row { display: none; padding: 0 14px 12px; gap: 8px; }
 .edit-row.show { display: flex; }
 .ebtn {
@@ -57,7 +55,6 @@ header {
   background: #e8e8e8; color: #333;
 }
 
-/* FAB butonlar */
 #lockBtn {
   position: fixed; bottom: 18px; right: 16px; z-index: 99;
   background: #2c2c2c; color: #fff; border: none;
@@ -73,7 +70,6 @@ header {
   box-shadow: 0 3px 10px rgba(0,0,0,0.2);
 }
 
-/* Sheet modal */
 .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; align-items: flex-end; justify-content: center; }
 .overlay.open { display: flex; }
 .sheet {
@@ -84,50 +80,40 @@ header {
 .sheet h3 { font-size: 1rem; margin-bottom: 1rem; color: #2c2c2c; }
 .fg { margin-bottom: 0.85rem; }
 .fg label { display: block; font-size: 0.72rem; color: #888; margin-bottom: 4px; }
-.fg input, .fg textarea {
+.fg input {
   width: 100%; border: 1px solid #ddd; border-radius: 7px;
-  padding: 9px 11px; font-size: 0.88rem; font-family: inherit; outline: none;
+  padding: 9px 11px; font-size: 0.88rem; outline: none;
 }
-.fg input:focus { border-color: #2c2c2c; }
 .sbtns { display: flex; gap: 9px; margin-top: 1rem; }
 .sbtn { flex: 1; padding: 11px; border-radius: 9px; border: none; font-size: 0.88rem; font-weight: bold; cursor: pointer; }
 .sbtn-save { background: #2c2c2c; color: #fff; }
 .sbtn-cancel { background: #eee; color: #555; }
 .del-link { display: block; text-align: center; margin-top: 14px; color: #c00; font-size: 0.8rem; cursor: pointer; }
 
-/* Şifre modal */
 #passModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; align-items: center; justify-content: center; }
 #passModal.open { display: flex; }
 .pbox { background: #fff; border-radius: 14px; padding: 1.6rem; width: 280px; text-align: center; }
-.pbox h3 { font-size: 0.95rem; margin-bottom: 1rem; }
 .pbox input {
   width: 100%; text-align: center; border: 1px solid #ddd; border-radius: 8px;
   padding: 10px; font-size: 1.2rem; letter-spacing: 6px; outline: none; margin-bottom: 6px;
 }
-.pbox input:focus { border-color: #2c2c2c; }
-.perr { color: #c00; font-size: 0.75rem; min-height: 16px; margin-bottom: 8px; }
-.pbtns { display: flex; gap: 8px; }
-.pbtns button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; }
-.pbtn-ok { background: #2c2c2c; color: #fff; }
-.pbtn-cancel { background: #eee; color: #555; }
 </style>
 </head>
 <body>
 
 <div id="adminBar">✏️ Düzenleme modu açık — model ekleyebilir, düzenleyebilir, silebilirsiniz</div>
-<header>MEZAR KATALOGİ</header>
+<header>RAMAZAN MERMER KATALOG</header>
 <div class="list" id="list"></div>
 
 <button id="lockBtn" onclick="openPass()">🔒 Yönetici</button>
 <button id="addBtn" onclick="openAdd()">+ Yeni Model</button>
 
-<!-- Düzenle / Ekle -->
 <div class="overlay" id="editOverlay">
   <div class="sheet">
-    <h3 id="sheetTitle">Model Düzenle</h3>
+    <h3 id="sheetTitle">Model İşlemi</h3>
     <div class="fg"><label>Model Adı</label><input type="text" id="f-name"></div>
     <div class="fg"><label>Fiyat (₺)</label><input type="number" id="f-price"></div>
-    <div class="fg"><label>Fotoğraf Linki</label><input type="text" id="f-img"></div>
+    <div class="fg"><label>Fotoğraf Linki (URL)</label><input type="text" id="f-img"></div>
     <div class="sbtns">
       <button class="sbtn sbtn-cancel" onclick="closeEdit()">İptal</button>
       <button class="sbtn sbtn-save" onclick="saveModel()">Kaydet</button>
@@ -136,119 +122,129 @@ header {
   </div>
 </div>
 
-<!-- Şifre -->
 <div id="passModal">
   <div class="pbox">
     <h3>🔒 Yönetici Girişi</h3>
-    <input type="password" id="passIn" maxlength="20" onkeydown="if(event.key==='Enter')checkPass()">
-    <div class="perr" id="passErr"></div>
-    <div class="pbtns">
-      <button class="pbtn-cancel" onclick="closePass()">İptal</button>
-      <button class="pbtn-ok" onclick="checkPass()">Giriş</button>
+    <input type="password" id="passIn" maxlength="20">
+    <div id="passErr" style="color:red; font-size:0.8rem; margin-bottom:10px;"></div>
+    <div class="pbtns" style="display:flex; gap:10px;">
+      <button onclick="closePass()" style="flex:1; padding:10px; border-radius:8px; border:none; cursor:pointer;">İptal</button>
+      <button onclick="checkPass()" style="flex:1; padding:10px; border-radius:8px; border:none; cursor:pointer; background:#2c2c2c; color:white;">Giriş</button>
     </div>
   </div>
 </div>
 
-<script>
-const INITIAL = [
-  { id: 1, name: "Model 1", price: 20000, img: "https://i.ibb.co/Y7pqTf8f/RMZ.jpg" },
-  { id: 2, name: "Model 2", price: 20000, img: "https://i.ibb.co/F45Nj8h4/RMZ2.jpg" },
-  { id: 3, name: "Model 3", price: 20000, img: "https://i.ibb.co/27ySwb6L/RMZ3.jpg" },
-];
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const DK = 'mz_v4';
-let admin = false;
-let editId = null;
-
-function get() {
-  const d = localStorage.getItem(DK);
-  if (d) return JSON.parse(d);
-  localStorage.setItem(DK, JSON.stringify(INITIAL));
-  return INITIAL;
-}
-function sv(a) { localStorage.setItem(DK, JSON.stringify(a)); }
-function fmt(n) { return Number(n).toLocaleString('tr-TR') + ' ₺'; }
-
-function render() {
-  const models = get();
-  document.getElementById('list').innerHTML = models.map((m, i) => `
-    <div class="card">
-      <img src="${m.img}">
-      <div class="card-info">
-        <div class="card-left">
-          <span class="card-num">Model ${i + 1}</span>
-          <span class="card-name">${m.name}</span>
-        </div>
-        <span class="card-price">${fmt(m.price)}</span>
-      </div>
-      <div class="edit-row ${admin ? 'show' : ''}">
-        <button class="ebtn" onclick="openEdit(${m.id})">✏️ Düzenle</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function openEdit(id) {
-  editId = id;
-  const m = get().find(x => x.id === id);
-  document.getElementById('f-name').value = m.name;
-  document.getElementById('f-price').value = m.price;
-  document.getElementById('f-img').value = m.img;
-  document.getElementById('editOverlay').classList.add('open');
-}
-
-function openAdd() {
-  editId = null;
-  document.getElementById('f-name').value = '';
-  document.getElementById('f-price').value = '';
-  document.getElementById('f-img').value = '';
-  document.getElementById('editOverlay').classList.add('open');
-}
-
-function closeEdit() { document.getElementById('editOverlay').classList.remove('open'); }
-
-function saveModel() {
-  const ms = get();
-  const entry = {
-    name: document.getElementById('f-name').value,
-    price: parseInt(document.getElementById('f-price').value) || 0,
-    img: document.getElementById('f-img').value,
+  const firebaseConfig = {
+    apiKey: "AIzaSyD6TKF0EJbmJtl9jVNKS-Lz24weFjYKGeE",
+    authDomain: "ramazan-mermer.firebaseapp.com",
+    databaseURL: "https://ramazan-mermer-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "ramazan-mermer",
+    storageBucket: "ramazan-mermer.firebasestorage.app",
+    messagingSenderId: "364821737549",
+    appId: "1:364821737549:web:1422a2eee2544d13f5ec04",
+    measurementId: "G-2MH2KM2XHQ"
   };
-  if (editId) {
-    const i = ms.findIndex(m => m.id === editId);
-    ms[i] = { ...ms[i], ...entry };
-  } else {
-    entry.id = Date.now();
-    ms.push(entry);
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const colRef = collection(db, "modeller");
+
+  let admin = false;
+  let editId = null;
+
+  // Verileri Çek ve Listele
+  onSnapshot(query(colRef), (snapshot) => {
+    let modeller = [];
+    snapshot.docs.forEach(doc => {
+      modeller.push({ ...doc.data(), id: doc.id });
+    });
+    render(modeller);
+  });
+
+  function fmt(n) { return Number(n).toLocaleString('tr-TR') + ' ₺'; }
+
+  function render(models) {
+    const list = document.getElementById('list');
+    list.innerHTML = models.map((m, i) => `
+      <div class="card">
+        <img src="${m.img || 'https://via.placeholder.com/400x700?text=Resim+Yok'}">
+        <div class="card-info">
+          <div class="card-left">
+            <span class="card-num">Model ${i + 1}</span>
+            <span class="card-name">${m.name}</span>
+          </div>
+          <span class="card-price">${fmt(m.price)}</span>
+        </div>
+        <div class="edit-row ${admin ? 'show' : ''}">
+          <button class="ebtn" onclick="window.openEdit('${m.id}', ${JSON.stringify(models).replace(/"/g, '&quot;')})">✏️ Düzenle</button>
+        </div>
+      </div>
+    `).join('');
   }
-  sv(ms); closeEdit(); render();
-}
 
-function deleteModel() {
-  sv(get().filter(m => m.id !== editId));
-  closeEdit(); render();
-}
+  // Fonksiyonları Dışarı Aktar
+  window.saveModel = async function() {
+    const name = document.getElementById('f-name').value;
+    const price = parseInt(document.getElementById('f-price').value) || 0;
+    const img = document.getElementById('f-img').value;
 
-function openPass() {
-  if (admin) { admin = false; applyAdmin(); return; }
-  document.getElementById('passModal').classList.add('open');
-}
-function closePass() { document.getElementById('passModal').classList.remove('open'); }
-function checkPass() {
-  if (document.getElementById('passIn').value === '1234') {
-    admin = true; closePass(); applyAdmin();
-  } else {
-    document.getElementById('passErr').textContent = 'Yanlış şifre!';
+    if (editId) {
+      await updateDoc(doc(db, "modeller", editId), { name, price, img });
+    } else {
+      await addDoc(colRef, { name, price, img, createdAt: Date.now() });
+    }
+    closeEdit();
+  };
+
+  window.deleteModel = async function() {
+    if(confirm("Silmek istiyor musunuz?")) {
+      await deleteDoc(doc(db, "modeller", editId));
+      closeEdit();
+    }
+  };
+
+  window.openEdit = function(id, models) {
+    editId = id;
+    const m = models.find(x => x.id === id);
+    document.getElementById('f-name').value = m.name;
+    document.getElementById('f-price').value = m.price;
+    document.getElementById('f-img').value = m.img;
+    document.getElementById('editOverlay').classList.add('open');
+    document.getElementById('delLink').style.display = 'block';
+  };
+
+  window.openAdd = function() {
+    editId = null;
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-price').value = '';
+    document.getElementById('f-img').value = '';
+    document.getElementById('editOverlay').classList.add('open');
+    document.getElementById('delLink').style.display = 'none';
+  };
+
+  window.closeEdit = () => document.getElementById('editOverlay').classList.remove('open');
+  window.openPass = () => { if(admin){ admin=false; applyAdmin(); } else { document.getElementById('passModal').classList.add('open'); } };
+  window.closePass = () => document.getElementById('passModal').classList.remove('open');
+  window.checkPass = () => {
+    if(document.getElementById('passIn').value === '1234') {
+      admin = true; closePass(); applyAdmin();
+    } else {
+      document.getElementById('passErr').textContent = 'Hatalı Şifre!';
+    }
+  };
+
+  function applyAdmin() {
+    document.getElementById('adminBar').style.display = admin ? 'block' : 'none';
+    document.getElementById('lockBtn').textContent = admin ? '🔓 Çıkış' : '🔒 Yönetici';
+    document.getElementById('addBtn').style.display = admin ? 'block' : 'none';
+    const currentHTML = document.getElementById('list').innerHTML;
+    if(admin) document.querySelectorAll('.edit-row').forEach(r => r.classList.add('show'));
+    else document.querySelectorAll('.edit-row').forEach(r => r.classList.remove('show'));
   }
-}
-function applyAdmin() {
-  document.getElementById('adminBar').style.display = admin ? 'block' : 'none';
-  document.getElementById('lockBtn').textContent = admin ? '🔓 Çıkış' : '🔒 Yönetici';
-  document.getElementById('addBtn').style.display = admin ? 'block' : 'none';
-  render();
-}
-
-render();
 </script>
 </body>
 </html>
