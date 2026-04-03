@@ -1,69 +1,250 @@
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ramazan Mermer Katalog</title>
+
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #f2f2f2; font-family: sans-serif; color: #222; }
-  header { background: #2c2c2c; color: #fff; text-align: center; padding: 20px; font-weight: bold; position: sticky; top: 0; z-index: 10; }
-  #adminBar { display: none; background: #fff3cd; padding: 10px; text-align: center; font-size: 0.8rem; border-bottom: 1px solid #ffc107; }
-  .list { padding: 15px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 100px; }
-  .card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-  .card img { width: 100%; aspect-ratio: 9/16; object-fit: cover; background: #eee; display: block; }
-  .card-info { padding: 15px; display: flex; align-items: center; justify-content: space-between; }
-  .card-name { font-weight: bold; font-size: 1.1rem; }
-  .card-price { background: #2c2c2c; color: #fff; padding: 8px 12px; border-radius: 6px; font-weight: bold; }
-  .edit-row { display: none; padding: 0 15px 15px; }
-  .edit-row.show { display: block; }
-  .ebtn { width: 100%; padding: 10px; border: none; border-radius: 6px; background: #eee; cursor: pointer; font-weight: bold; }
-  #lockBtn { position: fixed; bottom: 20px; right: 20px; background: #2c2c2c; color: #fff; border: none; border-radius: 50px; padding: 15px 25px; cursor: pointer; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-  #addBtn { display: none; position: fixed; bottom: 20px; left: 20px; background: #2a6e2a; color: #fff; border: none; border-radius: 50px; padding: 15px 25px; cursor: pointer; z-index: 100; }
-  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: flex-end; justify-content: center; }
-  .overlay.open { display: flex; }
-  .sheet { background: #fff; border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-width: 500px; }
-  .fg { margin-bottom: 15px; }
-  .fg label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #666; }
-  .fg input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; outline: none; }
-  .sbtns { display: flex; gap: 10px; }
-  .sbtn { flex: 1; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-  #passModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 300; align-items: center; justify-content: center; }
-  #passModal.open { display: flex; }
-  .pbox { background: #fff; padding: 30px; border-radius: 15px; text-align: center; width: 280px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #f2f2f2; font-family: sans-serif; color: #222; }
+
+header {
+  background: #2c2c2c;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+}
+
+#adminBar {
+  display: none;
+  background: #fff3cd;
+  padding: 10px;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.list {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding-bottom: 100px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card img {
+  width: 100%;
+  aspect-ratio: 9/16;
+  object-fit: cover;
+}
+
+.card-info {
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#lockBtn, #addBtn {
+  position: fixed;
+  bottom: 20px;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 50px;
+  color: #fff;
+  cursor: pointer;
+}
+
+#lockBtn { right: 20px; background: #2c2c2c; }
+#addBtn { left: 20px; background: #2a6e2a; display: none; }
+
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.overlay.open { display: flex; }
+
+.sheet {
+  background: #fff;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+}
+
+.fg { margin-bottom: 10px; }
+.fg input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.sbtns { display: flex; gap: 10px; }
+.sbtn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; }
+
+#passModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  justify-content: center;
+  align-items: center;
+}
+
+#passModal.open { display: flex; }
+
+.pbox {
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  width: 250px;
+  text-align: center;
+}
 </style>
 </head>
+
 <body>
 
 <div id="adminBar">YÖNETİCİ MODU AKTİF</div>
 <header>RAMAZAN MERMER KATALOG</header>
+
 <div class="list" id="list"></div>
 
-<button id="lockBtn" onclick="toggleAdmin()">🔒 Yönetici</button>
-<button id="addBtn" onclick="openAdd()">+ Yeni Model</button>
+<button id="lockBtn" onclick="openPass()">🔒 Yönetici</button>
+<button id="addBtn" onclick="openAdd()">+ Yeni</button>
 
 <div class="overlay" id="editOverlay">
   <div class="sheet">
-    <h3 style="margin-bottom:15px">Model Bilgileri</h3>
-    <div class="fg"><label>Model Adı</label><input type="text" id="f-name"></div>
-    <div class="fg"><label>Fiyat (₺)</label><input type="number" id="f-price"></div>
-    <div class="fg"><label>Resim Linki</label><input type="text" id="f-img"></div>
+    <div class="fg"><input id="f-name" placeholder="Model adı"></div>
+    <div class="fg"><input id="f-price" placeholder="Fiyat"></div>
+    <div class="fg"><input id="f-img" placeholder="Resim linki"></div>
+
     <div class="sbtns">
-      <button class="sbtn" style="background:#eee" onclick="closeEdit()">Vazgeç</button>
-      <button class="sbtn" style="background:#2c2c2c; color:#fff" onclick="saveModel()">Kaydet</button>
+      <button class="sbtn" onclick="closeEdit()">İptal</button>
+      <button class="sbtn" onclick="saveModel()" style="background:#2c2c2c;color:#fff">Kaydet</button>
     </div>
-    <p id="delBtn" onclick="deleteModel()" style="color:red; text-align:center; margin-top:15px; cursor:pointer; font-size:0.9rem">Bu Modeli Sil</p>
+
+    <p onclick="deleteModel()" style="color:red;text-align:center;margin-top:10px;cursor:pointer">Sil</p>
   </div>
 </div>
 
 <div id="passModal">
   <div class="pbox">
-    <h3>Şifre Girin</h3>
-    <input type="password" id="passIn" style="width:100%; padding:10px; margin:15px 0; text-align:center; font-size:1.5rem">
-    <button onclick="checkPass()" style="width:100%; padding:10px; background:#2c2c2c; color:#white; border:none; border-radius:8px; color:white; font-weight:bold">Giriş</button>
-    <button onclick="closePass()" style="width:100%; margin-top:10px; background:none; border:none; color:#666">Kapat</button>
+    <input type="password" id="passIn" placeholder="Şifre">
+    <button onclick="checkPass()" style="margin-top:10px;width:100%">Giriş</button>
   </div>
 </div>
 
 <script type="module">
-  import { initializeApp } from
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD6TKF0EJbmJtl9jVNKS-Lz24weFjYKGeE",
+  authDomain: "ramazan-mermer.firebaseapp.com",
+  databaseURL: "https://ramazan-mermer-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "ramazan-mermer",
+  storageBucket: "ramazan-mermer.firebasestorage.app",
+  messagingSenderId: "364821737549",
+  appId: "1:364821737549:web:1422a2eee2544d13f5ec04",
+  measurementId: "G-2MH2KM2XHQ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let editId = null;
+let isAdmin = false;
+
+const list = document.getElementById("list");
+
+onValue(ref(db, "models"), snap => {
+  list.innerHTML = "";
+  const data = snap.val();
+  if (!data) return;
+
+  Object.entries(data).forEach(([id, item]) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <img src="${item.img}">
+      <div class="card-info">
+        <div>${item.name}</div>
+        <div>${item.price} ₺</div>
+      </div>
+    `;
+    if (isAdmin) div.onclick = () => openEdit(id, item);
+    list.appendChild(div);
+  });
+});
+
+window.openAdd = () => {
+  editId = null;
+  document.getElementById("f-name").value = "";
+  document.getElementById("f-price").value = "";
+  document.getElementById("f-img").value = "";
+  document.getElementById("editOverlay").classList.add("open");
+};
+
+window.openEdit = (id, item) => {
+  editId = id;
+  document.getElementById("f-name").value = item.name;
+  document.getElementById("f-price").value = item.price;
+  document.getElementById("f-img").value = item.img;
+  document.getElementById("editOverlay").classList.add("open");
+};
+
+window.closeEdit = () => document.getElementById("editOverlay").classList.remove("open");
+
+window.saveModel = () => {
+  const name = document.getElementById("f-name").value;
+  const price = document.getElementById("f-price").value;
+  const img = document.getElementById("f-img").value;
+
+  if (!name || !price || !img) return alert("Boş bırakma");
+
+  if (editId)
+    set(ref(db, "models/" + editId), { name, price, img });
+  else
+    push(ref(db, "models"), { name, price, img });
+
+  closeEdit();
+};
+
+window.deleteModel = () => {
+  if (!editId) return;
+  remove(ref(db, "models/" + editId));
+  closeEdit();
+};
+
+window.openPass = () => document.getElementById("passModal").classList.add("open");
+
+window.checkPass = () => {
+  if (document.getElementById("passIn").value === "1234") {
+    isAdmin = true;
+    document.getElementById("addBtn").style.display = "block";
+    document.getElementById("adminBar").style.display = "block";
+    document.getElementById("passModal").classList.remove("open");
+  } else alert("Hatalı şifre");
+};
+</script>
+
+</body>
+</html>
+```
