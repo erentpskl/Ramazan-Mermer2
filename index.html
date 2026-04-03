@@ -22,33 +22,46 @@ header {
   font-size: 0.78rem; color: #856404;
 }
 
-.list { padding: 12px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
+.list { 
+  padding: 12px; 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Yan yana sığması için grid yapıldı */
+  gap: 12px; 
+  padding-bottom: 80px; 
+}
 
-.card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
 
+/* 9:16 Oranı Ayarı */
 .card img {
-  width: 100%; aspect-ratio: 4/3;
-  object-fit: cover; display: block;
+  width: 100%; 
+  aspect-ratio: 9 / 16; /* Dikey oran */
+  object-fit: cover; 
+  display: block;
+  background: #eee;
 }
+
 .card-info {
-  padding: 12px 14px;
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px;
+  display: flex; 
+  flex-direction: column; 
+  gap: 6px;
 }
-.card-left { display: flex; flex-direction: column; gap: 3px; }
-.card-num { font-size: 0.7rem; color: #888; }
-.card-name { font-size: 0.95rem; font-weight: bold; }
+.card-left { display: flex; flex-direction: column; gap: 2px; }
+.card-num { font-size: 0.65rem; color: #888; }
+.card-name { font-size: 0.85rem; font-weight: bold; line-height: 1.2; min-height: 2.4em; }
 .card-price {
-  font-size: 1rem; font-weight: bold; color: #fff;
-  background: #2c2c2c; padding: 7px 14px;
-  border-radius: 6px; white-space: nowrap;
+  font-size: 0.9rem; font-weight: bold; color: #fff;
+  background: #2c2c2c; padding: 6px;
+  border-radius: 6px; text-align: center;
 }
 
 /* Admin düzenle butonu */
-.edit-row { display: none; padding: 0 14px 12px; gap: 8px; }
-.edit-row.show { display: flex; }
+.edit-row { display: none; padding: 0 10px 10px; }
+.edit-row.show { display: block; }
 .ebtn {
-  flex: 1; padding: 9px; border: none; border-radius: 6px;
-  font-size: 0.82rem; font-weight: bold; cursor: pointer;
+  width: 100%; padding: 8px; border: none; border-radius: 6px;
+  font-size: 0.75rem; font-weight: bold; cursor: pointer;
   background: #e8e8e8; color: #333;
 }
 
@@ -110,13 +123,12 @@ header {
 <body>
 
 <div id="adminBar">✏️ Düzenleme modu açık — model ekleyebilir, düzenleyebilir, silebilirsiniz</div>
-<header>MEZAR KATALOGİ</header>
+<header>MEZAR KATALOĞU</header>
 <div class="list" id="list"></div>
 
 <button id="lockBtn" onclick="openPass()">🔒 Yönetici</button>
 <button id="addBtn" onclick="openAdd()">+ Yeni Model</button>
 
-<!-- Düzenle / Ekle -->
 <div class="overlay" id="editOverlay">
   <div class="sheet">
     <h3 id="sheetTitle">Model Düzenle</h3>
@@ -131,7 +143,6 @@ header {
   </div>
 </div>
 
-<!-- Şifre -->
 <div id="passModal">
   <div class="pbox">
     <h3>🔒 Yönetici Girişi</h3>
@@ -141,16 +152,15 @@ header {
       <button class="pbtn-cancel" onclick="closePass()">İptal</button>
       <button class="pbtn-ok" onclick="checkPass()">Giriş</button>
     </div>
-    <p style="font-size:0.66rem;color:#bbb;margin-top:12px">Şifre: 1234</p>
+    <p style="font-size:0.66rem;color:#bbb;margin-top:12px">Varsayılan Şifre: 1234</p>
   </div>
 </div>
 
 <script>
-// ── Başlangıç modelleri ──
 const INITIAL = [
-  { id: 1, name: "Model 1", price: 20000, img: "https://i.ibb.co/Y7pqTf8f/RMZ.jpg" },
-  { id: 2, name: "Model 2", price: 20000, img: "https://i.ibb.co/F45Nj8h4/RMZ2.jpg" },
-  { id: 3, name: "Model 3", price: 20000, img: "https://i.ibb.co/27ySwb6L/RMZ3.jpg" },
+  { id: 1, name: "Antik Granit Model", price: 25000, img: "https://i.ibb.co/Y7pqTf8f/RMZ.jpg" },
+  { id: 2, name: "Beyaz Mermer İşleme", price: 18500, img: "https://i.ibb.co/F45Nj8h4/RMZ2.jpg" },
+  { id: 3, name: "Modern Kabristan", price: 32000, img: "https://i.ibb.co/27ySwb6L/RMZ3.jpg" },
 ];
 
 const DK = 'mz_v4';
@@ -172,10 +182,10 @@ function render() {
   const models = get();
   document.getElementById('list').innerHTML = models.map((m, i) => `
     <div class="card">
-      <img src="${m.img}" alt="${m.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22><rect fill=%22%23e0dcd7%22 width=%22400%22 height=%22300%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2248%22>🪨</text></svg>'">
+      <img src="${m.img}" alt="${m.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2290%22 height=%22160%22><rect fill=%22%23e0dcd7%22 width=%22100%25%22 height=%22100%25%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2224%22>🖼️</text></svg>'">
       <div class="card-info">
         <div class="card-left">
-          <span class="card-num">Model ${i + 1}</span>
+          <span class="card-num">Model NO: ${i + 1}</span>
           <span class="card-name">${m.name}</span>
         </div>
         <span class="card-price">${fmt(m.price)}</span>
