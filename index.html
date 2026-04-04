@@ -609,7 +609,7 @@ header{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, onValue, push, set, update, remove, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyD6TKF0EJbmJtl9jVNKS-Lz24weFjYKGeE",
@@ -890,16 +890,21 @@ window.secretClick = () => {
 
 window.login = () => {
   const pass = document.getElementById("pass").value;
-  if(pass === "1234"){
-    isAdmin = true;
-    document.getElementById("adminPanel").style.display = "none";
-    document.getElementById("adminBanner").style.display = "block";
-    document.getElementById("adminActionBar").style.display = "flex";
-    document.getElementById("pass").value = "";
-    render();
-  } else {
-    alert("Hatalı şifre");
-  }
+
+  get(ref(db, "adminPassword")).then(snapshot => {
+    const adminPassword = snapshot.val();
+
+    if(pass === adminPassword){
+      isAdmin = true;
+      document.getElementById("adminPanel").style.display = "none";
+      document.getElementById("adminBanner").style.display = "block";
+      document.getElementById("adminActionBar").style.display = "flex";
+      document.getElementById("pass").value = "";
+      render();
+    } else {
+      alert("Hatalı şifre");
+    }
+  });
 };
 
 function logoutAdmin(){
