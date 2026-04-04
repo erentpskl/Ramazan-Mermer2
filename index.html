@@ -60,14 +60,83 @@ header{
   font-size:18px;
 }
 
-.sort-bar{
+.search-row{
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
   padding:0 15px 10px;
+}
+
+.sort-bar{
+  flex:1;
+  min-width:0;
+}
+
+.sort-bar label{
+  display:block;
+  font-size:11px;
+  font-weight:bold;
+  color:#888;
+  margin-bottom:4px;
+  text-transform:uppercase;
+  letter-spacing:0.4px;
 }
 
 .sort-bar select{
   width:100%;
   padding:8px;
   border-radius:8px;
+}
+
+#mapsBannerInline{
+  flex-shrink:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  text-decoration:none;
+}
+
+#mapsBannerInline .maps-label{
+  font-size:11px;
+  font-weight:bold;
+  color:#555;
+  text-transform:uppercase;
+  letter-spacing:0.4px;
+}
+
+#mapsBannerInline .maps-btn{
+  background:linear-gradient(135deg,#3a3a3a 0%,#2c2c2c 100%);
+  border-radius:10px;
+  padding:8px 14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+  transition:transform 0.15s, box-shadow 0.15s;
+  white-space:nowrap;
+}
+
+#mapsBannerInline .maps-btn:active{transform:scale(0.96);}
+
+#mapsBannerInline .maps-btn .maps-icon{
+  width:28px;height:28px;background:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+
+#mapsBannerInline .maps-btn .maps-text{
+  color:#fff;
+  font-size:12px;
+  font-weight:bold;
+  line-height:1.2;
+}
+
+#mapsBannerInline .maps-btn .maps-text span{
+  display:block;
+  color:rgba(255,255,255,0.7);
+  font-size:10px;
+  font-weight:normal;
+  margin-top:1px;
 }
 
 .cat-bar{
@@ -99,6 +168,7 @@ header{
 
 .list{
   padding:15px;
+  padding-bottom:90px;
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:15px;
@@ -398,21 +468,7 @@ header{
 
 #fbBanner:active{transform:scale(0.97);}
 
-#mapsBanner{
-  margin:15px 15px 90px;
-  background:linear-gradient(135deg,#3a3a3a 0%,#2c2c2c 100%);
-  border-radius:14px;
-  padding:14px 16px;
-  display:flex;
-  align-items:center;
-  gap:13px;
-  cursor:pointer;
-  text-decoration:none;
-  box-shadow:0 3px 12px rgba(0,0,0,0.35);
-  transition:transform 0.15s, box-shadow 0.15s;
-}
 
-#mapsBanner:active{transform:scale(0.97);}
 
 .fb-icon{
   width:38px;height:38px;background:#fff;border-radius:50%;
@@ -489,30 +545,34 @@ header{
 
 <div class="section-title">Mezar Modellerimiz:</div>
 
-<div class="sort-bar">
-  <select id="sortSelect">
-    <option value="default">Sıralama</option>
-    <option value="asc">Artan - Azalan</option>
-    <option value="desc">Azalan - Artan</option>
-  </select>
+<div class="search-row">
+  <div class="sort-bar">
+    <label>Sıralama</label>
+    <select id="sortSelect">
+      <option value="default">Varsayılan</option>
+      <option value="asc">Artan - Azalan</option>
+      <option value="desc">Azalan - Artan</option>
+    </select>
+  </div>
+  <a id="mapsBannerInline" href="https://www.google.com/maps?q=41.21827697753906,32.710208892822266&z=17&hl=tr" target="_blank">
+    <span class="maps-label">Yol Tarifi</span>
+    <div class="maps-btn">
+      <div class="maps-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#2c2c2c">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+        </svg>
+      </div>
+      <div class="maps-text">
+        Google Maps
+        <span>İşyerimizi gör ›</span>
+      </div>
+    </div>
+  </a>
 </div>
 
 <div class="cat-bar" id="catBar"></div>
 
 <div class="list" id="list"></div>
-
-<a id="mapsBanner" href="https://www.google.com/maps?q=41.21827697753906,32.710208892822266&z=17&hl=tr" target="_blank">
-  <div class="fb-icon">
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="#2c2c2c">
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-    </svg>
-  </div>
-  <div class="fb-text">
-    <div class="fb-title">Yol Tarifi Al</div>
-    <div class="fb-sub">Google Maps'te işyerimizi görüntüleyin</div>
-  </div>
-  <div class="fb-arrow">›</div>
-</a>
 
 <button id="callBtn" onclick="callPhone()">
   <img src="https://cdn-icons-png.flaticon.com/512/597/597177.png">
