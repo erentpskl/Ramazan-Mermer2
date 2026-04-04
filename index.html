@@ -9,7 +9,6 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:sans-serif;background:#f2f2f2}
 
-/* UYARI BANNER */
 #infoBanner{
   background:#2c2c2c;
   color:#e8e8e8;
@@ -453,7 +452,6 @@ header{
 
 <body>
 
-<!-- UYARI BANNER -->
 <div id="infoBanner">
   Sizlere en kaliteli hizmeti en uygun fiyatlarla ulaştırmaya çalışıyoruz.<br>
   Web sitemizdeki fiyat listesi <strong>Karabük Merkez</strong> konumu esas alınarak hazırlanmıştır.<br>
@@ -650,30 +648,43 @@ onValue(ref(db,"categories"), snap => {
 
 function render(){
   listEl.innerHTML = "";
-  let sorted = [...modelsData];
 
-  sorted.sort((a,b) => {
-    const aScore = a.label ? 1 : 0;
-    const bScore = b.label ? 1 : 0;
-    if(bScore !== aScore) return bScore - aScore;
-    return (a.order ?? 9999) - (b.order ?? 9999);
-  });
+  // 1. ADIM: Önce kategori filtresi uygula
+  let filtered = activeCat === "Tümü"
+    ? [...modelsData]
+    : modelsData.filter(i => i.category === activeCat);
 
-  if(sortSelect.value === "asc") sorted.sort((a,b) => {
-    if((b.label?1:0) !== (a.label?1:0)) return (b.label?1:0)-(a.label?1:0);
-    return a.price - b.price;
-  });
-  if(sortSelect.value === "desc") sorted.sort((a,b) => {
-    if((b.label?1:0) !== (a.label?1:0)) return (b.label?1:0)-(a.label?1:0);
-    return b.price - a.price;
-  });
+  // 2. ADIM: Filtrelenmiş listeyi sırala
+  const sortVal = sortSelect.value;
 
-  if(activeCat !== "Tümü"){
-    sorted = sorted.filter(i => i.category === activeCat);
+  if(sortVal === "asc"){
+    // Fiyata göre artan, etiketliler her zaman üstte
+    filtered.sort((a, b) => {
+      const aLabel = a.label ? 1 : 0;
+      const bLabel = b.label ? 1 : 0;
+      if(bLabel !== aLabel) return bLabel - aLabel;
+      return a.price - b.price;
+    });
+  } else if(sortVal === "desc"){
+    // Fiyata göre azalan, etiketliler her zaman üstte
+    filtered.sort((a, b) => {
+      const aLabel = a.label ? 1 : 0;
+      const bLabel = b.label ? 1 : 0;
+      if(bLabel !== aLabel) return bLabel - aLabel;
+      return b.price - a.price;
+    });
+  } else {
+    // Varsayılan sıralama: etiketliler üste, sonra order değerine göre
+    filtered.sort((a, b) => {
+      const aLabel = a.label ? 1 : 0;
+      const bLabel = b.label ? 1 : 0;
+      if(bLabel !== aLabel) return bLabel - aLabel;
+      return (a.order ?? 9999) - (b.order ?? 9999);
+    });
   }
 
-  sorted.forEach(item => {
-    const link = window.location.href + "#model-" + item.id;
+  // 3. ADIM: Kartları oluştur
+  filtered.forEach(item => {
     const div = document.createElement("div");
     div.className = "card" + (isAdmin ? " admin-mode" : "");
 
