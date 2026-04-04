@@ -18,6 +18,7 @@ header{
   position:sticky;
   top:0;
   cursor:pointer;
+  z-index:10;
 }
 
 .header-content{
@@ -28,6 +29,18 @@ header{
 }
 
 .logo{height:45px}
+
+/* Admin modu banner */
+#adminBanner{
+  display:none;
+  background:#e65c00;
+  color:#fff;
+  text-align:center;
+  padding:8px;
+  font-size:13px;
+  font-weight:bold;
+  letter-spacing:0.5px;
+}
 
 .section-title{
   padding:15px;
@@ -60,6 +73,26 @@ header{
   border-radius:12px;
   overflow:hidden;
   box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  position:relative;
+}
+
+/* Admin modunda kart üzerinde düzenle işareti */
+.card.admin-mode{
+  cursor:pointer;
+}
+
+.card.admin-mode::after{
+  content:"✏️ Düzenle";
+  position:absolute;
+  top:8px;
+  left:8px;
+  background:rgba(230,92,0,0.9);
+  color:#fff;
+  font-size:11px;
+  font-weight:bold;
+  padding:3px 8px;
+  border-radius:20px;
+  pointer-events:none;
 }
 
 .card img{
@@ -86,25 +119,7 @@ header{
   cursor:pointer;
 }
 
-.admin-actions{
-  display:flex;
-  gap:5px;
-  margin-top:5px;
-}
-
-.admin-actions button{
-  flex:1;
-  padding:6px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  font-size:12px;
-}
-
-.editBtn{background:#ffc107}
-.deleteBtn{background:#dc3545;color:#fff}
-
-/* NABIZ */
+/* NABIZLI ARAMA */
 #callBtn{
   position:fixed;
   bottom:20px;
@@ -138,6 +153,7 @@ header{
   background:rgba(0,0,0,0.9);
   justify-content:center;
   align-items:center;
+  z-index:100;
 }
 
 #viewer img{
@@ -145,38 +161,81 @@ header{
   max-height:95%;
 }
 
-/* ADMIN PANEL */
-#adminPanel{
+/* MODAL ORTAK */
+.modal{
   display:none;
   position:fixed;
   inset:0;
   background:rgba(0,0,0,0.6);
   justify-content:center;
   align-items:center;
+  z-index:200;
 }
 
-.admin-box{
+.modal-box{
   background:#fff;
   padding:20px;
-  border-radius:10px;
-  width:300px;
+  border-radius:12px;
+  width:320px;
+  max-height:90vh;
+  overflow-y:auto;
 }
 
-.admin-box input{
+.modal-box h3{
+  margin-bottom:12px;
+  font-size:16px;
+  color:#2c2c2c;
+}
+
+.modal-box input{
   width:100%;
   margin:5px 0;
-  padding:8px;
+  padding:9px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  font-size:14px;
 }
 
-.admin-box button{
-  width:100%;
-  padding:8px;
-  margin-top:5px;
+.modal-box .btn-group{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.modal-box button{
+  flex:1;
+  padding:9px;
   border:none;
-  border-radius:6px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:bold;
+}
+
+.btn-green{background:#25D366;color:#fff;}
+.btn-orange{background:#e65c00;color:#fff;}
+.btn-red{background:#ff3b3b;color:#fff;}
+.btn-gray{background:#ccc;color:#000;}
+
+/* Admin buton barı */
+#adminActionBar{
+  display:none;
+  padding:10px 15px;
+  background:#fff8f4;
+  border-bottom:1px solid #ffd5b8;
+}
+
+#adminActionBar button{
+  width:100%;
+  padding:10px;
+  background:#e65c00;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:bold;
   cursor:pointer;
 }
-
 </style>
 </head>
 
@@ -189,39 +248,75 @@ header{
   </div>
 </header>
 
+<!-- Admin modu aktifken göster -->
+<div id="adminBanner">🔧 ADMİN MODU AKTİF — Çıkmak için başlığa 5 kez tıkla</div>
+
+<!-- Admin: Yeni ürün ekle butonu -->
+<div id="adminActionBar">
+  <button onclick="openAddModal()">+ Yeni Ürün Ekle</button>
+</div>
+
 <div class="section-title">Mezar Modellerimiz:</div>
 
 <div class="sort-bar">
-<select id="sortSelect">
-  <option value="default">Sıralama</option>
-  <option value="asc">Artan</option>
-  <option value="desc">Azalan</option>
-</select>
+  <select id="sortSelect">
+    <option value="default">Sıralama</option>
+    <option value="asc">Artan - Azalan</option>
+    <option value="desc">Azalan - Artan</option>
+  </select>
 </div>
 
 <div class="list" id="list"></div>
 
+<!-- ARAMA -->
 <button id="callBtn" onclick="callPhone()">
-  📞
+  <img src="https://cdn-icons-png.flaticon.com/512/597/597177.png">
 </button>
 
+<!-- viewer -->
 <div id="viewer" onclick="closeViewer()">
   <img id="viewerImg">
 </div>
 
-<div id="adminPanel">
-  <div class="admin-box">
-    <h3>Admin</h3>
+<!-- 1. ADMIN GİRİŞ MODALI -->
+<div class="modal" id="adminPanel">
+  <div class="modal-box">
+    <h3>🔐 Admin Girişi</h3>
     <input type="password" id="pass" placeholder="Şifre">
-    <button onclick="login()">Giriş</button>
+    <div class="btn-group">
+      <button class="btn-green" onclick="login()">Giriş</button>
+      <button class="btn-gray" onclick="closeAdmin()">İptal</button>
+    </div>
+  </div>
+</div>
 
-    <div id="adminArea" style="display:none;">
-      <h4 id="formTitle">Ürün Ekle</h4>
-      <input id="name" placeholder="Model adı">
-      <input id="price" placeholder="Fiyat">
-      <input id="img" placeholder="Resim URL">
-      <button onclick="saveProduct()">Kaydet</button>
-      <button onclick="resetForm()">Temizle</button>
+<!-- 2. YENİ ÜRÜN EKLE MODALI -->
+<div class="modal" id="addModal">
+  <div class="modal-box">
+    <h3>➕ Yeni Ürün Ekle</h3>
+    <input id="add_name" placeholder="Model adı">
+    <input id="add_price" placeholder="Fiyat (₺)" type="number">
+    <input id="add_img" placeholder="Resim URL">
+    <div class="btn-group">
+      <button class="btn-orange" onclick="addProduct()">Ekle</button>
+      <button class="btn-gray" onclick="closeModal('addModal')">İptal</button>
+    </div>
+  </div>
+</div>
+
+<!-- 3. ÜRÜN DÜZENLE MODALI -->
+<div class="modal" id="editModal">
+  <div class="modal-box">
+    <h3>✏️ Ürünü Düzenle</h3>
+    <input id="edit_name" placeholder="Model adı">
+    <input id="edit_price" placeholder="Fiyat (₺)" type="number">
+    <input id="edit_img" placeholder="Resim URL">
+    <div class="btn-group">
+      <button class="btn-orange" onclick="saveEdit()">Kaydet</button>
+      <button class="btn-gray" onclick="closeModal('editModal')">İptal</button>
+    </div>
+    <div class="btn-group" style="margin-top:8px;">
+      <button class="btn-red" onclick="deleteProduct()">🗑️ Sil</button>
     </div>
   </div>
 </div>
@@ -231,143 +326,205 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const app = initializeApp({
-apiKey:"AIzaSy...",
-authDomain:"ramazan-mermer.firebaseapp.com",
-databaseURL:"https://ramazan-mermer-default-rtdb.europe-west1.firebasedatabase.app",
-projectId:"ramazan-mermer"
+  apiKey:"AIzaSyD6TKF0EJbmJtl9jVNKS-Lz24weFjYKGeE",
+  authDomain:"ramazan-mermer.firebaseapp.com",
+  databaseURL:"https://ramazan-mermer-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"ramazan-mermer"
 });
 
-const db=getDatabase(app);
-const list=document.getElementById("list");
-const sortSelect=document.getElementById("sortSelect");
+const db = getDatabase(app);
+const listEl = document.getElementById("list");
+const sortSelect = document.getElementById("sortSelect");
 
-let modelsData=[];
-let editId=null;
-let isAdmin=false;
+let modelsData = [];
+let isAdmin = false;
+let editingId = null;
 
 /* VERİ */
-onValue(ref(db,"models"),snap=>{
-const data=snap.val();
-if(!data) return;
-
-modelsData = Object.entries(data).map(([id,item])=>({id,...item}));
-render();
+onValue(ref(db,"models"), snap => {
+  const data = snap.val();
+  if(!data) return;
+  modelsData = Object.entries(data).map(([id,item]) => ({ id, ...item }));
+  render();
 });
 
 /* RENDER */
 function render(){
-list.innerHTML="";
-let sorted=[...modelsData];
+  listEl.innerHTML = "";
+  let sorted = [...modelsData];
 
-if(sortSelect.value==="asc") sorted.sort((a,b)=>a.price-b.price);
-if(sortSelect.value==="desc") sorted.sort((a,b)=>b.price-a.price);
+  if(sortSelect.value === "asc") sorted.sort((a,b) => a.price - b.price);
+  if(sortSelect.value === "desc") sorted.sort((a,b) => b.price - a.price);
 
-sorted.forEach(item=>{
-const div=document.createElement("div");
-div.className="card";
+  sorted.forEach(item => {
+    const link = window.location.href + "#model-" + item.id;
+    const div = document.createElement("div");
+    div.className = "card" + (isAdmin ? " admin-mode" : "");
 
-div.innerHTML=`
-<img src="${item.img}" onclick="openViewer('${item.img}')">
-<div class="card-info">
-  <div class="name-price">
-    <div>${item.name}</div>
-    <div>${item.price}₺</div>
-  </div>
+    div.innerHTML = `
+      <img src="${item.img}" onclick="handleImgClick(event,'${item.img}','${item.id}')">
+      <div class="card-info">
+        <div class="name-price">
+          <div>${item.name}</div>
+          <div>${item.price}₺</div>
+        </div>
+        <button class="wp-item" onclick="sendWhatsApp(event,'${item.name}','${link}')">
+          WhatsApp'tan sor
+        </button>
+      </div>
+    `;
 
-  <button class="wp-item" onclick="sendWhatsApp(event,'${item.name}')">
-    WhatsApp
-  </button>
+    // Admin modunda karta tıklayınca düzenle
+    if(isAdmin){
+      div.addEventListener("click", (e) => {
+        // WhatsApp butonuna tıklamayı engelleme
+        if(e.target.classList.contains("wp-item")) return;
+        openEditModal(item);
+      });
+    }
 
-  ${isAdmin ? `
-  <div class="admin-actions">
-    <button class="editBtn" onclick="editProduct('${item.id}')">Düzenle</button>
-    <button class="deleteBtn" onclick="deleteProduct('${item.id}')">Sil</button>
-  </div>` : ``}
-</div>
-`;
-
-list.appendChild(div);
-});
+    listEl.appendChild(div);
+  });
 }
 
-sortSelect.addEventListener("change",render);
+sortSelect.addEventListener("change", render);
 
-/* ADMIN */
-window.login=()=>{
-if(document.getElementById("pass").value==="1234"){
-document.getElementById("adminArea").style.display="block";
-isAdmin=true;
-render();
+/* FOTO */
+window.handleImgClick = (e, src, id) => {
+  if(isAdmin){
+    // Admin modunda resme tıklayınca düzenleme açılır (kart click'i handle eder)
+    return;
+  }
+  e.stopPropagation();
+  document.getElementById("viewer").style.display = "flex";
+  document.getElementById("viewerImg").src = src;
+};
+
+window.closeViewer = () => {
+  document.getElementById("viewer").style.display = "none";
+};
+
+/* WHATSAPP */
+window.sendWhatsApp = (e, name, link) => {
+  e.stopPropagation();
+  if(isAdmin) return; // admin modunda WA açılmasın
+  const msg = `Merhaba, ${name} modeli hakkında bilgi almak istiyorum.\nÜrün linki: ${link}`;
+  window.open("https://wa.me/905423189711?text=" + encodeURIComponent(msg), "_blank");
+};
+
+/* TELEFON */
+window.callPhone = () => {
+  window.location.href = "tel:+905423189711";
+};
+
+/* GİZLİ ADMIN */
+let clickCount = 0;
+let timer;
+
+window.secretClick = () => {
+  // Zaten admin ise çıkış yap
+  if(isAdmin){
+    clickCount++;
+    clearTimeout(timer);
+    timer = setTimeout(() => clickCount = 0, 1500);
+    if(clickCount === 5){
+      logoutAdmin();
+      clickCount = 0;
+    }
+    return;
+  }
+
+  clickCount++;
+  clearTimeout(timer);
+  timer = setTimeout(() => clickCount = 0, 1500);
+
+  if(clickCount === 5){
+    document.getElementById("adminPanel").style.display = "flex";
+    clickCount = 0;
+  }
+};
+
+/* GİRİŞ */
+window.login = () => {
+  const pass = document.getElementById("pass").value;
+  if(pass === "1234"){
+    isAdmin = true;
+    document.getElementById("adminPanel").style.display = "none";
+    document.getElementById("adminBanner").style.display = "block";
+    document.getElementById("adminActionBar").style.display = "block";
+    document.getElementById("pass").value = "";
+    render();
+  } else {
+    alert("Hatalı şifre");
+  }
+};
+
+function logoutAdmin(){
+  isAdmin = false;
+  document.getElementById("adminBanner").style.display = "none";
+  document.getElementById("adminActionBar").style.display = "none";
+  render();
 }
+
+window.closeAdmin = () => {
+  document.getElementById("adminPanel").style.display = "none";
+  document.getElementById("pass").value = "";
 };
 
-/* EKLE / GÜNCELLE */
-window.saveProduct=()=>{
-const name=nameInput.value;
-const price=parseInt(priceInput.value);
-const img=imgInput.value;
-
-if(editId){
-update(ref(db,"models/"+editId),{name,price,img});
-alert("Güncellendi");
-}else{
-set(push(ref(db,"models")),{name,price,img});
-alert("Eklendi");
-}
-
-resetForm();
+/* MODAL KAPAT */
+window.closeModal = (id) => {
+  document.getElementById(id).style.display = "none";
 };
 
-/* FORM RESET */
-window.resetForm=()=>{
-editId=null;
-nameInput.value="";
-priceInput.value="";
-imgInput.value="";
-document.getElementById("formTitle").innerText="Ürün Ekle";
+/* YENİ ÜRÜN EKLE */
+window.openAddModal = () => {
+  document.getElementById("add_name").value = "";
+  document.getElementById("add_price").value = "";
+  document.getElementById("add_img").value = "";
+  document.getElementById("addModal").style.display = "flex";
 };
 
-/* DÜZENLE */
-window.editProduct=(id)=>{
-const item=modelsData.find(i=>i.id===id);
+window.addProduct = () => {
+  const name  = document.getElementById("add_name").value.trim();
+  const price = parseInt(document.getElementById("add_price").value);
+  const img   = document.getElementById("add_img").value.trim();
 
-editId=id;
-nameInput.value=item.name;
-priceInput.value=item.price;
-imgInput.value=item.img;
+  if(!name || !price || !img){ alert("Tüm alanları doldur"); return; }
 
-document.getElementById("formTitle").innerText="Ürünü Güncelle";
+  set(push(ref(db,"models")), { name, price, img });
+  document.getElementById("addModal").style.display = "none";
+  alert("Ürün eklendi ✅");
 };
 
-/* SİL */
-window.deleteProduct=(id)=>{
-if(confirm("Silmek istiyor musun?")){
-remove(ref(db,"models/"+id));
-}
+/* ÜRÜN DÜZENLE */
+window.openEditModal = (item) => {
+  editingId = item.id;
+  document.getElementById("edit_name").value  = item.name;
+  document.getElementById("edit_price").value = item.price;
+  document.getElementById("edit_img").value   = item.img;
+  document.getElementById("editModal").style.display = "flex";
 };
 
-/* DİĞER */
-window.openViewer=(src)=>{
-viewer.style.display="flex";
-viewerImg.src=src;
+window.saveEdit = () => {
+  if(!editingId) return;
+  const name  = document.getElementById("edit_name").value.trim();
+  const price = parseInt(document.getElementById("edit_price").value);
+  const img   = document.getElementById("edit_img").value.trim();
+
+  if(!name || !price || !img){ alert("Tüm alanları doldur"); return; }
+
+  update(ref(db, "models/" + editingId), { name, price, img });
+  document.getElementById("editModal").style.display = "none";
+  editingId = null;
+  alert("Kaydedildi ✅");
 };
 
-window.closeViewer=()=>viewer.style.display="none";
-
-window.sendWhatsApp=(e,name)=>{
-e.stopPropagation();
-window.open("https://wa.me/905423189711?text="+name,"_blank");
-};
-
-window.callPhone=()=>window.location.href="tel:+905423189711";
-
-/* GİZLİ */
-let c=0,t;
-window.secretClick=()=>{
-c++;
-clearTimeout(t);
-t=setTimeout(()=>c=0,1500);
-if(c===5) adminPanel.style.display="flex";
+window.deleteProduct = () => {
+  if(!editingId) return;
+  if(!confirm("Bu ürünü silmek istediğinden emin misin?")) return;
+  remove(ref(db, "models/" + editingId));
+  document.getElementById("editModal").style.display = "none";
+  editingId = null;
 };
 </script>
 
