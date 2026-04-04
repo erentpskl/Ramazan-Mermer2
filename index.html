@@ -86,7 +86,25 @@ header{
   cursor:pointer;
 }
 
-/* NABIZLI ARAMA */
+.admin-actions{
+  display:flex;
+  gap:5px;
+  margin-top:5px;
+}
+
+.admin-actions button{
+  flex:1;
+  padding:6px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.editBtn{background:#ffc107}
+.deleteBtn{background:#dc3545;color:#fff}
+
+/* NABIZ */
 #callBtn{
   position:fixed;
   bottom:20px;
@@ -150,29 +168,15 @@ header{
   padding:8px;
 }
 
-.admin-box .btn-group{
-  display:flex;
-  gap:10px;
-  margin-top:5px;
-}
-
 .admin-box button{
-  flex:1;
+  width:100%;
   padding:8px;
+  margin-top:5px;
   border:none;
   border-radius:6px;
   cursor:pointer;
 }
 
-.admin-box button#loginBtn{
-  background:#25D366;
-  color:#fff;
-}
-
-.admin-box button#cancelBtn{
-  background:#ccc;
-  color:#000;
-}
 </style>
 </head>
 
@@ -190,48 +194,44 @@ header{
 <div class="sort-bar">
 <select id="sortSelect">
   <option value="default">Sıralama</option>
-  <option value="asc">Artan - Azalan</option>
-  <option value="desc">Azalan - Artan</option>
+  <option value="asc">Artan</option>
+  <option value="desc">Azalan</option>
 </select>
 </div>
 
 <div class="list" id="list"></div>
 
-<!-- ARAMA -->
 <button id="callBtn" onclick="callPhone()">
-  <img src="https://cdn-icons-png.flaticon.com/512/597/597177.png">
+  📞
 </button>
 
-<!-- viewer -->
 <div id="viewer" onclick="closeViewer()">
   <img id="viewerImg">
 </div>
 
-<!-- ADMIN PANEL -->
 <div id="adminPanel">
   <div class="admin-box">
-    <h3>Admin Giriş</h3>
+    <h3>Admin</h3>
     <input type="password" id="pass" placeholder="Şifre">
-    <div class="btn-group">
-      <button id="loginBtn" onclick="login()">Giriş</button>
-      <button id="cancelBtn" onclick="closeAdmin()">İptal</button>
-    </div>
+    <button onclick="login()">Giriş</button>
+
     <div id="adminArea" style="display:none;">
-      <h4>Ürün Ekle</h4>
+      <h4 id="formTitle">Ürün Ekle</h4>
       <input id="name" placeholder="Model adı">
       <input id="price" placeholder="Fiyat">
       <input id="img" placeholder="Resim URL">
-      <button onclick="addProduct()">Ekle</button>
+      <button onclick="saveProduct()">Kaydet</button>
+      <button onclick="resetForm()">Temizle</button>
     </div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const app = initializeApp({
-apiKey:"AIzaSyD6TKF0EJbmJtl9jVNKS-Lz24weFjYKGeE",
+apiKey:"AIzaSy...",
 authDomain:"ramazan-mermer.firebaseapp.com",
 databaseURL:"https://ramazan-mermer-default-rtdb.europe-west1.firebasedatabase.app",
 projectId:"ramazan-mermer"
@@ -242,17 +242,15 @@ const list=document.getElementById("list");
 const sortSelect=document.getElementById("sortSelect");
 
 let modelsData=[];
+let editId=null;
+let isAdmin=false;
 
 /* VERİ */
 onValue(ref(db,"models"),snap=>{
 const data=snap.val();
 if(!data) return;
 
-modelsData = Object.entries(data).map(([id,item])=>({
-  id,
-  ...item
-}));
-
+modelsData = Object.entries(data).map(([id,item])=>({id,...item}));
 render();
 });
 
@@ -261,16 +259,10 @@ function render(){
 list.innerHTML="";
 let sorted=[...modelsData];
 
-if(sortSelect.value==="asc"){
-sorted.sort((a,b)=>a.price-b.price);
-}
-if(sortSelect.value==="desc"){
-sorted.sort((a,b)=>b.price-a.price);
-}
+if(sortSelect.value==="asc") sorted.sort((a,b)=>a.price-b.price);
+if(sortSelect.value==="desc") sorted.sort((a,b)=>b.price-a.price);
 
 sorted.forEach(item=>{
-const link = window.location.href + "#model-" + item.id;
-
 const div=document.createElement("div");
 div.className="card";
 
@@ -281,9 +273,16 @@ div.innerHTML=`
     <div>${item.name}</div>
     <div>${item.price}₺</div>
   </div>
-  <button class="wp-item" onclick="sendWhatsApp(event,'${item.name}','${link}')">
-    WhatsApp'tan sor
+
+  <button class="wp-item" onclick="sendWhatsApp(event,'${item.name}')">
+    WhatsApp
   </button>
+
+  ${isAdmin ? `
+  <div class="admin-actions">
+    <button class="editBtn" onclick="editProduct('${item.id}')">Düzenle</button>
+    <button class="deleteBtn" onclick="deleteProduct('${item.id}')">Sil</button>
+  </div>` : ``}
 </div>
 `;
 
@@ -293,77 +292,84 @@ list.appendChild(div);
 
 sortSelect.addEventListener("change",render);
 
-/* FOTO */
-window.openViewer=(src)=>{
-document.getElementById("viewer").style.display="flex";
-document.getElementById("viewerImg").src=src;
-};
-
-window.closeViewer=()=>{
-document.getElementById("viewer").style.display="none";
-};
-
-/* WHATSAPP */
-window.sendWhatsApp=(e,name,link)=>{
-e.stopPropagation();
-const msg = `Merhaba, ${name} modeli hakkında bilgi almak istiyorum.\nÜrün linki: ${link}`;
-window.open("https://wa.me/905423189711?text="+encodeURIComponent(msg),"_blank");
-};
-
-/* TELEFON */
-window.callPhone=()=>{
-window.location.href="tel:+905423189711";
-};
-
-/* 🔐 GİZLİ ADMIN */
-let clickCount=0;
-let timer;
-
-window.secretClick=()=>{
-clickCount++;
-
-clearTimeout(timer);
-timer=setTimeout(()=>clickCount=0,1500);
-
-if(clickCount===5){
-document.getElementById("adminPanel").style.display="flex";
-clickCount=0;
-}
-};
-
 /* ADMIN */
 window.login=()=>{
-const pass=document.getElementById("pass").value;
-
-if(pass==="1234"){
+if(document.getElementById("pass").value==="1234"){
 document.getElementById("adminArea").style.display="block";
-}else{
-alert("Hatalı şifre");
+isAdmin=true;
+render();
 }
 };
 
-/* İPTAL BUTONU */
-window.closeAdmin=()=>{
-document.getElementById("adminPanel").style.display="none";
-document.getElementById("adminArea").style.display="none";
-document.getElementById("pass").value="";
+/* EKLE / GÜNCELLE */
+window.saveProduct=()=>{
+const name=nameInput.value;
+const price=parseInt(priceInput.value);
+const img=imgInput.value;
+
+if(editId){
+update(ref(db,"models/"+editId),{name,price,img});
+alert("Güncellendi");
+}else{
+set(push(ref(db,"models")),{name,price,img});
+alert("Eklendi");
+}
+
+resetForm();
 };
 
-window.addProduct=()=>{
-const name=document.getElementById("name").value;
-const price=parseInt(document.getElementById("price").value);
-const img=document.getElementById("img").value;
+/* FORM RESET */
+window.resetForm=()=>{
+editId=null;
+nameInput.value="";
+priceInput.value="";
+imgInput.value="";
+document.getElementById("formTitle").innerText="Ürün Ekle";
+};
 
-set(push(ref(db,"models")),{
-name,
-price,
-img
-});
+/* DÜZENLE */
+window.editProduct=(id)=>{
+const item=modelsData.find(i=>i.id===id);
 
-alert("Eklendi");
+editId=id;
+nameInput.value=item.name;
+priceInput.value=item.price;
+imgInput.value=item.img;
+
+document.getElementById("formTitle").innerText="Ürünü Güncelle";
+};
+
+/* SİL */
+window.deleteProduct=(id)=>{
+if(confirm("Silmek istiyor musun?")){
+remove(ref(db,"models/"+id));
+}
+};
+
+/* DİĞER */
+window.openViewer=(src)=>{
+viewer.style.display="flex";
+viewerImg.src=src;
+};
+
+window.closeViewer=()=>viewer.style.display="none";
+
+window.sendWhatsApp=(e,name)=>{
+e.stopPropagation();
+window.open("https://wa.me/905423189711?text="+name,"_blank");
+};
+
+window.callPhone=()=>window.location.href="tel:+905423189711";
+
+/* GİZLİ */
+let c=0,t;
+window.secretClick=()=>{
+c++;
+clearTimeout(t);
+t=setTimeout(()=>c=0,1500);
+if(c===5) adminPanel.style.display="flex";
 };
 </script>
 
 </body>
 </html>
-```
