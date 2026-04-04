@@ -571,99 +571,32 @@ header{
 .label-btn.active-bestseller{ border-color:var(--amber); background:rgba(230,92,0,0.12); color:var(--amber); }
 .label-btn.active-campaign  { border-color:var(--red);   background:rgba(192,57,43,0.12); color:#e05a4a; }
 
-/* ── PRICE FILTER ── */
-.price-filter{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 14px 0;
-  position:relative;
-  z-index:2;
-}
-.price-filter-label{
-  font-size:10px;
-  font-weight:600;
-  color:var(--text3);
-  text-transform:uppercase;
-  letter-spacing:0.8px;
-  white-space:nowrap;
-}
-.price-filter-inputs{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex:1;
-}
-.price-filter-inputs input{
-  flex:1;
-  min-width:0;
-  padding:9px 10px;
-  background:var(--surface);
-  border:1px solid var(--border2);
-  border-radius:var(--radius-sm);
-  color:var(--text);
-  font-family:var(--font-body);
-  font-size:12px;
-}
-.price-filter-inputs input:focus{ outline:none; border-color:var(--gold); }
-.price-filter-inputs input::placeholder{ color:var(--text3); }
-.price-filter-sep{ color:var(--text3); font-size:12px; flex-shrink:0; }
-.price-filter-clear{
-  background:none;
-  border:1px solid var(--border2);
-  border-radius:var(--radius-sm);
-  color:var(--text3);
-  font-size:11px;
-  padding:9px 10px;
-  cursor:pointer;
-  white-space:nowrap;
-  transition:border-color 0.15s, color 0.15s;
-}
-.price-filter-clear:hover{ border-color:var(--gold); color:var(--gold); }
-
 /* ── CAT LIST ── */
 .cat-list-item{
   display:flex;
   align-items:center;
-  gap:6px;
-  padding:8px 10px;
+  justify-content:space-between;
+  padding:9px 12px;
   background:var(--surface2);
   border-radius:var(--radius-sm);
   margin-bottom:6px;
-  font-size:13px;
+  font-size:13.5px;
   color:var(--text);
   border:1px solid var(--border);
 }
-.cat-list-item .cat-name-display{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.cat-list-item .cat-name-input{
-  flex:1; min-width:0;
-  padding:4px 8px;
-  background:var(--surface);
-  border:1px solid var(--gold);
-  border-radius:6px;
-  color:var(--text);
-  font-family:var(--font-body);
-  font-size:13px;
-  display:none;
-}
-.cat-list-item .cat-name-input:focus{ outline:none; }
-.cat-list-item .cat-actions{ display:flex; gap:4px; flex-shrink:0; }
-.cat-list-item .cat-actions button{
+.cat-list-item button{
   flex:none;
-  padding:4px 9px;
+  padding:4px 12px;
   font-size:11px;
+  background:var(--red);
+  color:#fff;
   border:none;
   border-radius:6px;
   cursor:pointer;
   font-weight:600;
   transition:filter 0.15s;
-  line-height:1.3;
 }
-.cat-list-item .cat-actions button:hover{ filter:brightness(1.2); }
-.btn-cat-up,.btn-cat-dn{ background:var(--surface); border:1px solid var(--border2)!important; color:var(--text2); font-size:12px!important; padding:4px 7px!important; }
-.btn-cat-rename{ background:rgba(201,169,110,0.15); color:var(--gold); border:1px solid rgba(201,169,110,0.3)!important; }
-.btn-cat-save  { background:var(--gold); color:#000; display:none; }
-.btn-cat-del   { background:var(--red); color:#fff; }
+.cat-list-item button:hover{ filter:brightness(1.15); }
 
 /* ── ORDER LIST ── */
 .order-list{
@@ -804,17 +737,6 @@ header{
 <!-- CAT BAR -->
 <div class="cat-bar" id="catBar"></div>
 
-<!-- PRICE FILTER -->
-<div class="price-filter" id="priceFilterRow">
-  <span class="price-filter-label">Fiyat</span>
-  <div class="price-filter-inputs">
-    <input type="number" id="priceMin" placeholder="Min ₺" oninput="render()">
-    <span class="price-filter-sep">—</span>
-    <input type="number" id="priceMax" placeholder="Max ₺" oninput="render()">
-  </div>
-  <button class="price-filter-clear" onclick="clearPriceFilter()">✕ Temizle</button>
-</div>
-
 <!-- PRODUCT LIST -->
 <div class="list" id="list"></div>
 
@@ -889,7 +811,6 @@ header{
 <div class="modal" id="catModal">
   <div class="modal-box">
     <h3>🗂️ Kategori Yönetimi</h3>
-    <p style="font-size:11.5px;color:var(--text2);margin-bottom:10px;">Kategorileri sıralayabilir ve isimlerini düzenleyebilirsiniz.</p>
     <input id="new_cat_name" placeholder="Yeni kategori adı">
     <div class="btn-group">
       <button class="btn-dark" onclick="addCategory()">+ Ekle</button>
@@ -949,21 +870,11 @@ onValue(ref(db,"models"), snap => {
 onValue(ref(db,"categories"), snap => {
   const data = snap.val();
   if(!data){ categoriesData=[]; }
-  else {
-    categoriesData = Object.entries(data)
-      .map(([id,item]) => ({ id, name: item.name, order: item.order ?? 9999 }))
-      .sort((a,b) => a.order - b.order);
-  }
+  else { categoriesData = Object.entries(data).map(([id,item]) => ({ id, name: item.name })); }
   renderCatBar();
   renderCatSelects();
   renderCatList();
 });
-
-window.clearPriceFilter = () => {
-  document.getElementById("priceMin").value = "";
-  document.getElementById("priceMax").value = "";
-  render();
-};
 
 function render(){
   listEl.innerHTML = "";
@@ -971,10 +882,6 @@ function render(){
   let filtered = activeCat === "Tümü"
     ? [...modelsData]
     : modelsData.filter(i => i.category === activeCat);
-
-  const minVal = parseInt(document.getElementById("priceMin").value) || 0;
-  const maxVal = parseInt(document.getElementById("priceMax").value) || Infinity;
-  filtered = filtered.filter(i => i.price >= minVal && i.price <= maxVal);
 
   const sortVal = sortSelect.value;
   if(sortVal === "asc"){
@@ -1078,61 +985,13 @@ function renderCatList(){
     container.innerHTML = `<p style="font-size:13px;color:var(--text3);text-align:center;">Henüz kategori yok</p>`;
     return;
   }
-  categoriesData.forEach((cat, idx) => {
+  categoriesData.forEach(cat => {
     const row = document.createElement("div");
     row.className = "cat-list-item";
-    row.id = `cat-row-${cat.id}`;
-    row.innerHTML = `
-      <span class="cat-name-display" id="cat-display-${cat.id}">${cat.name}</span>
-      <input class="cat-name-input" id="cat-input-${cat.id}" value="${cat.name}">
-      <div class="cat-actions">
-        <button class="btn-cat-up" onclick="moveCat('${cat.id}',-1)" title="Yukarı">▲</button>
-        <button class="btn-cat-dn" onclick="moveCat('${cat.id}',1)" title="Aşağı">▼</button>
-        <button class="btn-cat-rename" id="cat-rename-btn-${cat.id}" onclick="startRenameCategory('${cat.id}')">✏️</button>
-        <button class="btn-cat-save"   id="cat-save-btn-${cat.id}"   onclick="saveRenameCategory('${cat.id}')">✓ Kaydet</button>
-        <button class="btn-cat-del"    onclick="deleteCategory('${cat.id}','${cat.name}')">Sil</button>
-      </div>
-    `;
+    row.innerHTML = `<span>${cat.name}</span><button onclick="deleteCategory('${cat.id}','${cat.name}')">Sil</button>`;
     container.appendChild(row);
   });
 }
-
-window.startRenameCategory = (id) => {
-  document.getElementById(`cat-display-${id}`).style.display = "none";
-  document.getElementById(`cat-input-${id}`).style.display   = "block";
-  document.getElementById(`cat-rename-btn-${id}`).style.display = "none";
-  document.getElementById(`cat-save-btn-${id}`).style.display   = "inline-block";
-  document.getElementById(`cat-input-${id}`).focus();
-};
-
-window.saveRenameCategory = async (id) => {
-  const newName = document.getElementById(`cat-input-${id}`).value.trim();
-  if(!newName){ alert("Kategori adı boş olamaz"); return; }
-  if(categoriesData.find(c => c.name === newName && c.id !== id)){ alert("Bu isim zaten kullanılıyor"); return; }
-  const oldName = categoriesData.find(c => c.id === id)?.name;
-  await update(ref(db,"categories/"+id), { name: newName });
-  // Update products that use old category name
-  if(oldName && oldName !== newName){
-    const updates = {};
-    modelsData.filter(m => m.category === oldName).forEach(m => {
-      updates[`models/${m.id}/category`] = newName;
-    });
-    if(Object.keys(updates).length) await update(ref(db), updates);
-  }
-};
-
-window.moveCat = async (id, dir) => {
-  const idx = categoriesData.findIndex(c => c.id === id);
-  const newIdx = idx + dir;
-  if(newIdx < 0 || newIdx >= categoriesData.length) return;
-  // Swap
-  const tmp = categoriesData[idx]; categoriesData[idx] = categoriesData[newIdx]; categoriesData[newIdx] = tmp;
-  // Save order field for all
-  const updates = {};
-  categoriesData.forEach((c, i) => { updates[`categories/${c.id}/order`] = i; });
-  await update(ref(db), updates);
-  renderCatList();
-};
 
 window.addCategory = () => {
   const name = document.getElementById("new_cat_name").value.trim();
