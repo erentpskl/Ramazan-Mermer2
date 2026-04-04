@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -33,7 +34,7 @@ header img{height:45px}
   font-size:18px;
 }
 
-/* SIRALAMA */
+/* sıralama */
 .sort-bar{
   padding:0 15px 10px;
 }
@@ -44,6 +45,7 @@ header img{height:45px}
   border-radius:8px;
 }
 
+/* liste */
 .list{
   padding:15px;
   display:grid;
@@ -85,19 +87,44 @@ header img{height:45px}
   cursor:pointer;
 }
 
-/* ARAMA BUTONU */
+/* NABIZLI ARAMA BUTONU */
 #callBtn{
   position:fixed;
   bottom:20px;
   right:20px;
-  background:#2c2c2c;
-  color:#fff;
+  width:65px;
+  height:65px;
   border:none;
   border-radius:50%;
-  width:55px;
-  height:55px;
-  font-size:20px;
   cursor:pointer;
+
+  background:#ff3b3b;
+  color:#fff;
+  font-size:26px;
+
+  box-shadow:0 0 0 rgba(255,59,59,0.7);
+  animation:pulse 1.5s infinite;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#callBtn img{
+  width:30px;
+}
+
+/* nabız animasyonu */
+@keyframes pulse{
+  0%{
+    box-shadow:0 0 0 0 rgba(255,59,59,0.7);
+  }
+  70%{
+    box-shadow:0 0 0 20px rgba(255,59,59,0);
+  }
+  100%{
+    box-shadow:0 0 0 0 rgba(255,59,59,0);
+  }
 }
 
 /* viewer */
@@ -131,16 +158,16 @@ header img{height:45px}
 <div class="sort-bar">
 <select id="sortSelect">
   <option value="default">Sıralama</option>
-  <option value="asc">Azalan-Artan</option>
-  <option value="desc">Artan-Azalan</option>
+  <option value="asc">Ucuzdan pahalıya</option>
+  <option value="desc">Pahalıdan ucuza</option>
 </select>
 </div>
 
 <div class="list" id="list"></div>
 
-<!-- ARAMA BUTONU -->
+<!-- NABIZLI ARAMA -->
 <button id="callBtn" onclick="callPhone()">
-📞
+  <img src="https://cdn-icons-png.flaticon.com/512/597/597177.png">
 </button>
 
 <!-- viewer -->
@@ -163,9 +190,9 @@ const db=getDatabase(app);
 const list=document.getElementById("list");
 const sortSelect=document.getElementById("sortSelect");
 
-let modelsData = [];
+let modelsData=[];
 
-/* VERİ ÇEK */
+/* veri çek */
 onValue(ref(db,"models"),snap=>{
 const data=snap.val();
 if(!data) return;
@@ -178,7 +205,7 @@ modelsData = Object.entries(data).map(([id,item])=>({
 render();
 });
 
-/* RENDER */
+/* render */
 function render(){
 list.innerHTML="";
 
@@ -216,7 +243,7 @@ list.appendChild(div);
 });
 }
 
-/* sıralama değişince */
+/* sıralama */
 sortSelect.addEventListener("change",render);
 
 /* foto */
@@ -229,14 +256,14 @@ window.closeViewer=()=>{
 document.getElementById("viewer").style.display="none";
 };
 
-/* WHATSAPP (LINKLİ) */
+/* whatsapp */
 window.sendWhatsApp=(e,name,link)=>{
 e.stopPropagation();
 const msg = `Merhaba, ${name} modeli hakkında bilgi almak istiyorum.\nÜrün linki: ${link}`;
 window.open("https://wa.me/905423189711?text="+encodeURIComponent(msg),"_blank");
 };
 
-/* TELEFON ARAMA */
+/* telefon */
 window.callPhone=()=>{
 window.location.href="tel:+905423189711";
 };
@@ -244,3 +271,4 @@ window.location.href="tel:+905423189711";
 
 </body>
 </html>
+```
