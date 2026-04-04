@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -10,10 +10,11 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:sans-serif;background:#f2f2f2}
 
+/* HEADER */
 header{
   background:#2c2c2c;
   color:#fff;
-  padding:10px;
+  padding:12px;
   text-align:center;
   position:sticky;
   top:0;
@@ -26,8 +27,41 @@ header{
   gap:10px;
 }
 
-header img{height:45px}
+/* LOGO */
+.logo{
+  height:45px;
+  opacity:0;
+  transform:translateY(-10px);
+  animation:fadeIn 0.6s ease forwards;
+}
 
+/* YAZI */
+.title{
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:0.5px;
+
+  opacity:0;
+  transform:translateY(-10px);
+  animation:fadeIn 0.6s ease forwards;
+  animation-delay:0.2s;
+}
+
+/* HAFİF HOVER */
+.title:hover{
+  color:#e0e0e0;
+  transition:0.2s;
+}
+
+/* animasyon */
+@keyframes fadeIn{
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* başlık */
 .section-title{
   padding:15px;
   font-weight:bold;
@@ -87,7 +121,7 @@ header img{height:45px}
   cursor:pointer;
 }
 
-/* NABIZLI ARAMA BUTONU */
+/* NABIZLI ARAMA */
 #callBtn{
   position:fixed;
   bottom:20px;
@@ -99,28 +133,25 @@ header img{height:45px}
   cursor:pointer;
 
   background:#ff3b3b;
-  color:#fff;
-  font-size:26px;
-
-  box-shadow:0 0 0 rgba(255,59,59,0.7);
-  animation:pulse 1.5s infinite;
-
   display:flex;
   align-items:center;
   justify-content:center;
+
+  box-shadow:0 0 0 rgba(255,59,59,0.6);
+  animation:pulse 1.8s infinite;
 }
 
 #callBtn img{
-  width:30px;
+  width:28px;
 }
 
-/* nabız animasyonu */
+/* hafif nabız */
 @keyframes pulse{
   0%{
-    box-shadow:0 0 0 0 rgba(255,59,59,0.7);
+    box-shadow:0 0 0 0 rgba(255,59,59,0.6);
   }
   70%{
-    box-shadow:0 0 0 20px rgba(255,59,59,0);
+    box-shadow:0 0 0 15px rgba(255,59,59,0);
   }
   100%{
     box-shadow:0 0 0 0 rgba(255,59,59,0);
@@ -148,8 +179,8 @@ header img{height:45px}
 
 <header>
   <div class="header-content">
-    <img src="logo.png">
-    <h2>Ramazan Mermer</h2>
+    <img src="logo.png" class="logo">
+    <h2 class="title">Ramazan Mermer</h2>
   </div>
 </header>
 
@@ -165,7 +196,7 @@ header img{height:45px}
 
 <div class="list" id="list"></div>
 
-<!-- NABIZLI ARAMA -->
+<!-- ARAMA -->
 <button id="callBtn" onclick="callPhone()">
   <img src="https://cdn-icons-png.flaticon.com/512/597/597177.png">
 </button>
@@ -192,7 +223,6 @@ const sortSelect=document.getElementById("sortSelect");
 
 let modelsData=[];
 
-/* veri çek */
 onValue(ref(db,"models"),snap=>{
 const data=snap.val();
 if(!data) return;
@@ -205,7 +235,6 @@ modelsData = Object.entries(data).map(([id,item])=>({
 render();
 });
 
-/* render */
 function render(){
 list.innerHTML="";
 
@@ -243,10 +272,8 @@ list.appendChild(div);
 });
 }
 
-/* sıralama */
 sortSelect.addEventListener("change",render);
 
-/* foto */
 window.openViewer=(src)=>{
 document.getElementById("viewer").style.display="flex";
 document.getElementById("viewerImg").src=src;
@@ -256,14 +283,12 @@ window.closeViewer=()=>{
 document.getElementById("viewer").style.display="none";
 };
 
-/* whatsapp */
 window.sendWhatsApp=(e,name,link)=>{
 e.stopPropagation();
 const msg = `Merhaba, ${name} modeli hakkında bilgi almak istiyorum.\nÜrün linki: ${link}`;
 window.open("https://wa.me/905423189711?text="+encodeURIComponent(msg),"_blank");
 };
 
-/* telefon */
 window.callPhone=()=>{
 window.location.href="tel:+905423189711";
 };
