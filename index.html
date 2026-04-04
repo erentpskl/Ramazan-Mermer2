@@ -113,6 +113,67 @@ header{
   cursor:pointer;
 }
 
+/* ETİKETLER */
+.badge-wrap{
+  position:absolute;
+  top:8px;
+  right:8px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  align-items:flex-end;
+}
+
+.badge{
+  font-size:10px;
+  font-weight:bold;
+  padding:3px 8px;
+  border-radius:20px;
+  white-space:nowrap;
+}
+
+.badge-bestseller{
+  background:#e65c00;
+  color:#fff;
+}
+
+.badge-campaign{
+  background:#c0392b;
+  color:#fff;
+}
+
+/* Admin modundaki etiket seçici */
+.label-toggle{
+  display:flex;
+  gap:8px;
+  margin-top:8px;
+}
+
+.label-btn{
+  flex:1;
+  padding:8px 6px;
+  border:2px solid #ddd;
+  border-radius:8px;
+  background:#fff;
+  font-size:12px;
+  font-weight:bold;
+  cursor:pointer;
+  text-align:center;
+  transition:all 0.15s;
+}
+
+.label-btn.active-bestseller{
+  border-color:#e65c00;
+  background:#fff3ec;
+  color:#e65c00;
+}
+
+.label-btn.active-campaign{
+  border-color:#c0392b;
+  background:#fdecea;
+  color:#c0392b;
+}
+
 #callBtn{
   position:fixed;
   bottom:20px;
@@ -208,6 +269,13 @@ header{
 .btn-red{background:#ff3b3b;color:#fff;}
 .btn-gray{background:#ccc;color:#000;}
 
+.modal-label{
+  font-size:13px;
+  color:#555;
+  margin:10px 0 4px;
+  font-weight:bold;
+}
+
 #fbBanner{
   margin:12px 15px;
   background:linear-gradient(135deg,#1877F2 0%,#0a5abf 100%);
@@ -257,9 +325,7 @@ header{
   flex-shrink:0;
 }
 
-.fb-text{
-  flex:1;
-}
+.fb-text{flex:1;}
 
 .fb-text .fb-title{
   color:#fff;
@@ -361,6 +427,7 @@ header{
   <img id="viewerImg">
 </div>
 
+<!-- ADMIN GİRİŞ -->
 <div class="modal" id="adminPanel">
   <div class="modal-box">
     <h3>🔐 Admin Girişi</h3>
@@ -372,12 +439,18 @@ header{
   </div>
 </div>
 
+<!-- YENİ ÜRÜN EKLE -->
 <div class="modal" id="addModal">
   <div class="modal-box">
     <h3>➕ Yeni Ürün Ekle</h3>
     <input id="add_name" placeholder="Model adı">
     <input id="add_price" placeholder="Fiyat (₺)" type="number">
     <input id="add_img" placeholder="Resim URL">
+    <div class="modal-label">Etiket:</div>
+    <div class="label-toggle">
+      <div class="label-btn" id="add_btn_bestseller" onclick="toggleAddLabel('bestseller')">🔥 En Çok Satılan</div>
+      <div class="label-btn" id="add_btn_campaign" onclick="toggleAddLabel('campaign')">🏷️ Kampanyalı Ürün</div>
+    </div>
     <div class="btn-group">
       <button class="btn-orange" onclick="addProduct()">Ekle</button>
       <button class="btn-gray" onclick="closeModal('addModal')">İptal</button>
@@ -385,12 +458,18 @@ header{
   </div>
 </div>
 
+<!-- ÜRÜN DÜZENLE -->
 <div class="modal" id="editModal">
   <div class="modal-box">
     <h3>✏️ Ürünü Düzenle</h3>
     <input id="edit_name" placeholder="Model adı">
     <input id="edit_price" placeholder="Fiyat (₺)" type="number">
     <input id="edit_img" placeholder="Resim URL">
+    <div class="modal-label">Etiket:</div>
+    <div class="label-toggle">
+      <div class="label-btn" id="edit_btn_bestseller" onclick="toggleEditLabel('bestseller')">🔥 En Çok Satılan</div>
+      <div class="label-btn" id="edit_btn_campaign" onclick="toggleEditLabel('campaign')">🏷️ Kampanyalı Ürün</div>
+    </div>
     <div class="btn-group">
       <button class="btn-orange" onclick="saveEdit()">Kaydet</button>
       <button class="btn-gray" onclick="closeModal('editModal')">İptal</button>
@@ -419,6 +498,8 @@ const sortSelect = document.getElementById("sortSelect");
 let modelsData = [];
 let isAdmin = false;
 let editingId = null;
+let addLabel = "";
+let editLabel = "";
 
 onValue(ref(db,"models"), snap => {
   const data = snap.val();
@@ -439,8 +520,16 @@ function render(){
     const div = document.createElement("div");
     div.className = "card" + (isAdmin ? " admin-mode" : "");
 
+    let badgeHTML = "";
+    if(item.label === "bestseller"){
+      badgeHTML = `<div class="badge-wrap"><span class="badge badge-bestseller">🔥 En Çok Satılan</span></div>`;
+    } else if(item.label === "campaign"){
+      badgeHTML = `<div class="badge-wrap"><span class="badge badge-campaign">🏷️ Kampanyalı Ürün</span></div>`;
+    }
+
     div.innerHTML = `
       <img src="${item.img}" onclick="handleImgClick(event,'${item.img}','${item.id}')">
+      ${badgeHTML}
       <div class="card-info">
         <div class="name-price">
           <div>${item.name}</div>
@@ -464,6 +553,40 @@ function render(){
 }
 
 sortSelect.addEventListener("change", render);
+
+/* ETİKET TOGGLE - EKLE */
+window.toggleAddLabel = (type) => {
+  if(addLabel === type){
+    addLabel = "";
+  } else {
+    addLabel = type;
+  }
+  updateAddLabelUI();
+};
+
+function updateAddLabelUI(){
+  const bs = document.getElementById("add_btn_bestseller");
+  const cp = document.getElementById("add_btn_campaign");
+  bs.className = "label-btn" + (addLabel === "bestseller" ? " active-bestseller" : "");
+  cp.className = "label-btn" + (addLabel === "campaign" ? " active-campaign" : "");
+}
+
+/* ETİKET TOGGLE - DÜZENLE */
+window.toggleEditLabel = (type) => {
+  if(editLabel === type){
+    editLabel = "";
+  } else {
+    editLabel = type;
+  }
+  updateEditLabelUI();
+};
+
+function updateEditLabelUI(){
+  const bs = document.getElementById("edit_btn_bestseller");
+  const cp = document.getElementById("edit_btn_campaign");
+  bs.className = "label-btn" + (editLabel === "bestseller" ? " active-bestseller" : "");
+  cp.className = "label-btn" + (editLabel === "campaign" ? " active-campaign" : "");
+}
 
 window.handleImgClick = (e, src, id) => {
   if(isAdmin) return;
@@ -501,11 +624,9 @@ window.secretClick = () => {
     }
     return;
   }
-
   clickCount++;
   clearTimeout(timer);
   timer = setTimeout(() => clickCount = 0, 1500);
-
   if(clickCount === 5){
     document.getElementById("adminPanel").style.display = "flex";
     clickCount = 0;
@@ -543,9 +664,11 @@ window.closeModal = (id) => {
 };
 
 window.openAddModal = () => {
+  addLabel = "";
   document.getElementById("add_name").value = "";
   document.getElementById("add_price").value = "";
   document.getElementById("add_img").value = "";
+  updateAddLabelUI();
   document.getElementById("addModal").style.display = "flex";
 };
 
@@ -556,16 +679,18 @@ window.addProduct = () => {
 
   if(!name || !price || !img){ alert("Tüm alanları doldur"); return; }
 
-  set(push(ref(db,"models")), { name, price, img });
+  set(push(ref(db,"models")), { name, price, img, label: addLabel });
   document.getElementById("addModal").style.display = "none";
   alert("Ürün eklendi ✅");
 };
 
 window.openEditModal = (item) => {
   editingId = item.id;
+  editLabel = item.label || "";
   document.getElementById("edit_name").value  = item.name;
   document.getElementById("edit_price").value = item.price;
   document.getElementById("edit_img").value   = item.img;
+  updateEditLabelUI();
   document.getElementById("editModal").style.display = "flex";
 };
 
@@ -577,7 +702,7 @@ window.saveEdit = () => {
 
   if(!name || !price || !img){ alert("Tüm alanları doldur"); return; }
 
-  update(ref(db, "models/" + editingId), { name, price, img });
+  update(ref(db, "models/" + editingId), { name, price, img, label: editLabel });
   document.getElementById("editModal").style.display = "none";
   editingId = null;
   alert("Kaydedildi ✅");
