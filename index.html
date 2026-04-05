@@ -116,7 +116,11 @@ header{
   backdrop-filter:blur(18px);
   -webkit-backdrop-filter:blur(18px);
   border-bottom:1px solid var(--border);
+  transition:opacity 0.15s;
+  user-select:none;
+  -webkit-user-select:none;
 }
+header:active{ opacity:0.75; }
 .header-inner{
   padding:13px 18px;
   display:flex;
@@ -1988,15 +1992,27 @@ window.secretClick = () => {
     clickCount++; clearTimeout(timer);
     timer = setTimeout(()=>clickCount=0, 1500);
     if(clickCount===5){ logoutAdmin(); clickCount=0; }
+    else { goHome(); }
     return;
   }
   clickCount++; clearTimeout(timer);
-  timer = setTimeout(()=>clickCount=0, 1500);
+  timer = setTimeout(()=>{ clickCount=0; }, 1500);
   if(clickCount===5){
     document.getElementById("adminPanel").style.display = "flex";
     clickCount=0;
+  } else {
+    goHome();
   }
 };
+
+function goHome(){
+  // Kategoriyi sıfırla
+  activeCat = "Tümü";
+  renderCatBar();
+  render();
+  // Sayfanın en üstüne git
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
 window.login = () => {
   const pass = document.getElementById("pass").value;
