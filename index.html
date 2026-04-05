@@ -1214,6 +1214,85 @@ header:active{ opacity:0.75; }
   position:relative;
   z-index:2;
 }
+
+/* ════════════════════════════════════════
+   PC WRAPPER
+   ════════════════════════════════════════ */
+#page-wrapper{
+  width:100%;
+}
+
+@media(min-width:768px){
+  body{
+    background:var(--bg);
+  }
+  #page-wrapper{
+    max-width:960px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+  header .header-inner{
+    max-width:960px;
+    margin:0 auto;
+    padding:13px 24px;
+  }
+  #infoBanner{
+    padding:22px 40px;
+  }
+  #infoBanner p{
+    font-size:16px;
+    max-width:720px;
+    margin:0 auto;
+  }
+  #adminActionBar{
+    justify-content:center;
+    padding:12px 24px;
+  }
+  #adminActionBar button{
+    flex:0 1 auto;
+    min-width:130px;
+    max-width:170px;
+  }
+  .cat-bar{
+    grid-template-columns:repeat(6,1fr);
+    padding:14px 0 10px;
+    gap:8px;
+  }
+  .cat-btn{
+    font-size:13px;
+    padding:10px 12px;
+  }
+  .list{
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    padding:10px 0 120px;
+  }
+  .sort-row{ padding:14px 0 0; }
+  .search-row{ padding:10px 0 0; }
+  #priceFilterPanel{ margin:8px 0 0; }
+  .gold-divider{ margin:14px 0 0; }
+  .section-title{ padding:24px 0 8px; font-size:30px; }
+  #fbBanner{ margin:14px 0 0; }
+  .modal-box{ max-width:440px; }
+  #callBtn{ bottom:32px; right:32px; width:68px; height:68px; }
+}
+
+@media(min-width:1200px){
+  #page-wrapper{
+    max-width:1200px;
+    padding:0 40px;
+  }
+  header .header-inner{
+    max-width:1200px;
+    padding:13px 40px;
+  }
+  #infoBanner p{ max-width:900px; }
+  .cat-bar{ grid-template-columns:repeat(6,1fr); }
+  .list{
+    grid-template-columns:repeat(5,1fr);
+    gap:16px;
+  }
+}
 </style>
 </head>
 
@@ -1250,6 +1329,9 @@ header:active{ opacity:0.75; }
   <button class="btn-theme" onclick="openThemeModal()">🎨 Tema</button>
   <button class="btn-banner-edit" onclick="openBannerModal()">📢 Uyarı Banneri</button>
 </div>
+
+<!-- PAGE WRAPPER START -->
+<div id="page-wrapper">
 
 <!-- FB BANNER -->
 <a id="fbBanner" href="https://www.facebook.com/groups/912273898899478" target="_blank">
@@ -1343,6 +1425,9 @@ header:active{ opacity:0.75; }
 
 <!-- PRODUCT LIST -->
 <div class="list" id="list"></div>
+
+<!-- PAGE WRAPPER END -->
+</div>
 
 <!-- CALL BUTTON -->
 <button id="callBtn" onclick="callPhone()">
