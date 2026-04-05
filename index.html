@@ -766,6 +766,28 @@ header:active{ opacity:0.75; }
   border-radius:10px;
   box-shadow:0 20px 60px rgba(0,0,0,0.8);
 }
+#viewerClose{
+  position:absolute;
+  top:16px; right:16px;
+  width:42px; height:42px;
+  border-radius:50%;
+  border:none;
+  background:rgba(255,255,255,0.15);
+  color:#fff;
+  font-size:18px;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  transition:background 0.15s, transform 0.1s;
+  z-index:101;
+  line-height:1;
+}
+#viewerClose:active{ transform:scale(0.91); }
+#viewerClose:hover{ background:rgba(255,255,255,0.28); }
 @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
 
 /* ── MODALS ── */
@@ -1436,6 +1458,7 @@ header:active{ opacity:0.75; }
 
 <!-- IMAGE VIEWER -->
 <div id="viewer" onclick="closeViewer()">
+  <button id="viewerClose" onclick="closeViewer()" title="Kapat">✕</button>
   <img id="viewerImg">
 </div>
 
