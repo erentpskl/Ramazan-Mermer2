@@ -565,17 +565,17 @@ header:active{ opacity:0.75; }
 /* ── CAT BAR ── */
 .cat-bar{
   padding:12px 14px 10px;
-  display:flex;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
   gap:7px;
-  overflow-x:auto;
-  scrollbar-width:none;
   position:relative;
   z-index:2;
 }
-.cat-bar::-webkit-scrollbar{ display:none; }
 .cat-btn{
+  overflow:hidden;
+  text-overflow:ellipsis;
   white-space:nowrap;
-  padding:7px 16px;
+  padding:9px 10px;
   border-radius:40px;
   border:1px solid var(--border2);
   background:transparent;
@@ -586,6 +586,7 @@ header:active{ opacity:0.75; }
   cursor:pointer;
   transition:all 0.2s;
   letter-spacing:0.2px;
+  text-align:center;
 }
 .cat-btn:hover{ border-color:var(--gold); color:var(--gold); }
 .cat-btn.active{
