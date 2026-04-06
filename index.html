@@ -287,6 +287,41 @@ header:active{ opacity:0.75; }
 .imgbb-link:hover{ background:rgba(201,169,110,0.18); border-color:var(--gold); }
 .imgbb-link svg{ flex-shrink:0; }
 
+/* ── DUPLICATE NAME WARNING ── */
+.name-warning{
+  display:none;
+  align-items:center;
+  gap:6px;
+  margin-top:5px;
+  padding:7px 10px;
+  background:rgba(192,57,43,0.15);
+  border:1px solid rgba(192,57,43,0.4);
+  border-radius:6px;
+  color:#e74c3c;
+  font-size:12px;
+  font-weight:600;
+  animation:slideDown 0.2s ease;
+}
+.name-warning.show{ display:flex; }
+.name-suggestion{
+  display:none;
+  align-items:center;
+  gap:6px;
+  margin-top:5px;
+  padding:7px 10px;
+  background:rgba(201,169,110,0.1);
+  border:1px solid rgba(201,169,110,0.25);
+  border-radius:6px;
+  color:var(--gold);
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:background 0.15s;
+  animation:slideDown 0.2s ease;
+}
+.name-suggestion.show{ display:flex; }
+.name-suggestion:hover{ background:rgba(201,169,110,0.2); }
+
 /* ── STATS MODAL ── */
 .stats-section-title{
   font-size:11px;
@@ -1659,7 +1694,9 @@ header:active{ opacity:0.75; }
 <div class="modal" id="addModal">
   <div class="modal-box">
     <h3>➕ Yeni Ürün Ekle</h3>
-    <input id="add_name" placeholder="Model adı">
+    <input id="add_name" placeholder="Model adı" oninput="onAddNameInput(this)">
+    <div class="name-warning" id="add_name_warning">⚠️ Bu isimde bir ürün zaten mevcut!</div>
+    <div class="name-suggestion" id="add_name_suggestion" onclick="applyAddSuggestion()"></div>
     <input id="add_price" placeholder="Fiyat (₺)" type="number">
     <input id="add_img" placeholder="Resim URL">
     <a class="imgbb-link" href="https://imgbb.com/" target="_blank">
@@ -1676,7 +1713,7 @@ header:active{ opacity:0.75; }
       <div class="label-btn" id="add_btn_limitedstock"  onclick="toggleAddLabel('limitedstock')" >⚡ Sınırlı Stok</div>
     </div>
     <div class="btn-group">
-      <button class="btn-orange" onclick="addProduct()">Ekle</button>
+      <button class="btn-orange" id="btn_add_product" onclick="addProduct()">Ekle</button>
       <button class="btn-gray"   onclick="closeModal('addModal')">İptal</button>
     </div>
   </div>
@@ -1686,7 +1723,8 @@ header:active{ opacity:0.75; }
 <div class="modal" id="editModal">
   <div class="modal-box">
     <h3>✏️ Ürünü Düzenle</h3>
-    <input id="edit_name"  placeholder="Model adı">
+    <input id="edit_name"  placeholder="Model adı" oninput="onEditNameInput(this)">
+    <div class="name-warning" id="edit_name_warning">⚠️ Bu isimde başka bir ürün zaten mevcut!</div>
     <input id="edit_price" placeholder="Fiyat (₺)" type="number">
     <input id="edit_img"   placeholder="Resim URL">
     <a class="imgbb-link" href="https://imgbb.com/" target="_blank">
@@ -1703,7 +1741,7 @@ header:active{ opacity:0.75; }
       <div class="label-btn" id="edit_btn_limitedstock"  onclick="toggleEditLabel('limitedstock')" >⚡ Sınırlı Stok</div>
     </div>
     <div class="btn-group">
-      <button class="btn-orange" onclick="saveEdit()">Kaydet</button>
+      <button class="btn-orange" id="btn_save_edit" onclick="saveEdit()">Kaydet</button>
       <button class="btn-gray"   onclick="closeModal('editModal')">İptal</button>
     </div>
     <div class="btn-group" style="margin-top:8px;">
@@ -2890,20 +2928,107 @@ window.selectTheme = (id) => {
 
 window.closeModal = (id) => { document.getElementById(id).style.display = "none"; };
 
+// ── YARDIMCI: Title Case (Her Kelime Büyük) ──
+function toTitleCase(str){
+  return str.replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+}
+
+// ── YARDIMCI: Sonraki numara önerisi ──
+function getNextNameSuggestion(){
+  // Tüm ürün adlarından sayısal suffix'leri bul (örn: "Model 12" → 12)
+  const nums = modelsData.map(m => {
+    const match = m.name.match(/(\d+)\s*$/);
+    return match ? parseInt(match[1]) : null;
+  }).filter(n => n !== null);
+  if(nums.length === 0) return null;
+  const max = Math.max(...nums);
+  return max + 1;
+}
+
+// ── YARDIMCI: isim duplicate kontrolü ──
+function isDuplicateName(name, excludeId = null){
+  const norm = name.trim().toLowerCase();
+  return modelsData.some(m => m.name.trim().toLowerCase() === norm && m.id !== excludeId);
+}
+
+// ── ADD MODAL: isim input handler ──
+window.onAddNameInput = (el) => {
+  // Title case uygula (cursor pozisyonunu koru)
+  const pos = el.selectionStart;
+  const titled = toTitleCase(el.value);
+  el.value = titled;
+  try { el.setSelectionRange(pos, pos); } catch(e){}
+
+  const warn = document.getElementById("add_name_warning");
+  const btn  = document.getElementById("btn_add_product");
+  const dup  = isDuplicateName(el.value);
+  warn.classList.toggle("show", dup);
+  btn.disabled = dup;
+  btn.style.opacity = dup ? "0.45" : "";
+  btn.style.cursor  = dup ? "not-allowed" : "";
+};
+
+// ── EDIT MODAL: isim input handler ──
+window.onEditNameInput = (el) => {
+  const pos = el.selectionStart;
+  const titled = toTitleCase(el.value);
+  el.value = titled;
+  try { el.setSelectionRange(pos, pos); } catch(e){}
+
+  const warn = document.getElementById("edit_name_warning");
+  const btn  = document.getElementById("btn_save_edit");
+  const dup  = isDuplicateName(el.value, editingId);
+  warn.classList.toggle("show", dup);
+  btn.disabled = dup;
+  btn.style.opacity = dup ? "0.45" : "";
+  btn.style.cursor  = dup ? "not-allowed" : "";
+};
+
+// ── ADD MODAL: öneri chip'ini tıklayınca uygula ──
+window.applyAddSuggestion = () => {
+  const sug = document.getElementById("add_name_suggestion");
+  const inp = document.getElementById("add_name");
+  const name = sug.dataset.suggestion;
+  if(!name) return;
+  inp.value = name;
+  onAddNameInput(inp);
+};
+
 window.openAddModal = () => {
   addLabel = [];
   ["add_name","add_price","add_img"].forEach(id => document.getElementById(id).value = "");
   document.getElementById("add_cat").value = "";
+  // Uyarıları sıfırla
+  document.getElementById("add_name_warning").classList.remove("show");
+  const btn = document.getElementById("btn_add_product");
+  btn.disabled = false; btn.style.opacity = ""; btn.style.cursor = "";
+
+  // Numara önerisi
+  const nextNum = getNextNameSuggestion();
+  const sugEl = document.getElementById("add_name_suggestion");
+  if(nextNum !== null){
+    // Ortak prefix'i bul (en yaygın prefix)
+    const sample = modelsData.find(m => m.name.match(/(\d+)\s*$/));
+    const prefix = sample ? sample.name.replace(/\d+\s*$/, "").trim() : "Model";
+    const suggested = toTitleCase(`${prefix} ${nextNum}`);
+    sugEl.dataset.suggestion = suggested;
+    sugEl.innerHTML = `💡 Öneri: <strong style="margin-left:4px;">${suggested}</strong> &nbsp;— tıkla uygula`;
+    sugEl.classList.add("show");
+  } else {
+    sugEl.classList.remove("show");
+  }
+
   updateAddLabelUI();
   document.getElementById("addModal").style.display = "flex";
 };
 
 window.addProduct = () => {
-  const name     = document.getElementById("add_name").value.trim();
+  const name     = toTitleCase(document.getElementById("add_name").value.trim());
   const price    = parseInt(document.getElementById("add_price").value);
   const img      = document.getElementById("add_img").value.trim();
   const category = document.getElementById("add_cat").value;
   if(!name||!price||!img){ alert("Tüm alanları doldur"); return; }
+  if(isDuplicateName(name)){ alert("Bu isimde bir ürün zaten mevcut!"); return; }
   set(push(ref(db,"models")), { name, price, img, label:addLabel, category, order:modelsData.length });
   document.getElementById("addModal").style.display = "none";
   alert("Ürün eklendi ✅");
@@ -2916,17 +3041,22 @@ window.openEditModal = (item) => {
   document.getElementById("edit_price").value = item.price;
   document.getElementById("edit_img").value   = item.img;
   document.getElementById("edit_cat").value   = item.category||"";
+  // Uyarıyı sıfırla
+  document.getElementById("edit_name_warning").classList.remove("show");
+  const btn = document.getElementById("btn_save_edit");
+  btn.disabled = false; btn.style.opacity = ""; btn.style.cursor = "";
   updateEditLabelUI();
   document.getElementById("editModal").style.display = "flex";
 };
 
 window.saveEdit = () => {
   if(!editingId) return;
-  const name     = document.getElementById("edit_name").value.trim();
+  const name     = toTitleCase(document.getElementById("edit_name").value.trim());
   const price    = parseInt(document.getElementById("edit_price").value);
   const img      = document.getElementById("edit_img").value.trim();
   const category = document.getElementById("edit_cat").value;
   if(!name||!price||!img){ alert("Tüm alanları doldur"); return; }
+  if(isDuplicateName(name, editingId)){ alert("Bu isimde başka bir ürün zaten mevcut!"); return; }
   update(ref(db,"models/"+editingId), { name, price, img, label:editLabel, category });
   document.getElementById("editModal").style.display = "none";
   editingId = null;
