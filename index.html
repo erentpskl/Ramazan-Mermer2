@@ -206,6 +206,87 @@ header:active{ opacity:0.75; }
 .btn-theme{ background:linear-gradient(135deg,#6b2d8b,#9b4fd4); color:#fff; }
 .btn-stats{ background:linear-gradient(135deg,#0d47a1,#1976d2); color:#fff; }
 
+/* ── ADMIN SEARCH BAR ── */
+#adminSearchBar{
+  display:none;
+  padding:8px 14px 10px;
+  background:rgba(22,18,9,0.9);
+  border-bottom:1px solid rgba(201,169,110,0.15);
+  position:relative;
+  z-index:2;
+}
+.admin-search-wrap{
+  position:relative;
+  display:flex;
+  align-items:center;
+}
+.admin-search-icon{
+  position:absolute;
+  left:12px;
+  font-size:15px;
+  pointer-events:none;
+  color:var(--text3);
+}
+#adminSearchInput{
+  width:100%;
+  padding:10px 36px 10px 36px;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:var(--radius-sm);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:14px;
+  font-weight:500;
+  transition:border-color 0.2s;
+}
+#adminSearchInput:focus{
+  outline:none;
+  border-color:var(--gold);
+}
+#adminSearchInput::placeholder{ color:var(--text3); font-weight:400; }
+#adminSearchClear{
+  position:absolute;
+  right:10px;
+  background:none;
+  border:none;
+  color:var(--text3);
+  font-size:16px;
+  cursor:pointer;
+  padding:4px;
+  display:none;
+  line-height:1;
+  transition:color 0.15s;
+}
+#adminSearchClear:hover{ color:var(--gold); }
+.admin-search-count{
+  font-size:11px;
+  color:var(--text3);
+  margin-top:5px;
+  text-align:right;
+  min-height:14px;
+}
+.admin-search-count strong{ color:var(--gold); }
+
+/* ── IMGBB LINK ── */
+.imgbb-link{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-top:5px;
+  padding:6px 10px;
+  background:rgba(201,169,110,0.1);
+  border:1px solid rgba(201,169,110,0.25);
+  border-radius:6px;
+  color:var(--gold);
+  font-size:11.5px;
+  font-weight:600;
+  text-decoration:none;
+  letter-spacing:0.2px;
+  transition:background 0.15s, border-color 0.15s;
+}
+.imgbb-link:hover{ background:rgba(201,169,110,0.18); border-color:var(--gold); }
+.imgbb-link svg{ flex-shrink:0; }
+
 /* ── STATS MODAL ── */
 .stats-section-title{
   font-size:11px;
@@ -1443,6 +1524,16 @@ header:active{ opacity:0.75; }
   <button class="btn-banner-edit" onclick="openBannerModal()">📢 Uyarı Banneri</button>
 </div>
 
+<!-- ADMIN ÜRÜN ARAMA -->
+<div id="adminSearchBar">
+  <div class="admin-search-wrap">
+    <span class="admin-search-icon">🔍</span>
+    <input id="adminSearchInput" type="text" placeholder="Ürün adı veya kategoriye göre ara..." oninput="onAdminSearch(this.value)">
+    <button id="adminSearchClear" onclick="clearAdminSearch()" title="Temizle">✕</button>
+  </div>
+  <div class="admin-search-count" id="adminSearchCount"></div>
+</div>
+
 <!-- PAGE WRAPPER START -->
 <div id="page-wrapper">
 
@@ -1571,6 +1662,10 @@ header:active{ opacity:0.75; }
     <input id="add_name" placeholder="Model adı">
     <input id="add_price" placeholder="Fiyat (₺)" type="number">
     <input id="add_img" placeholder="Resim URL">
+    <a class="imgbb-link" href="https://imgbb.com/" target="_blank">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+      imgbb.com — Fotoğraf yükle &amp; URL al
+    </a>
     <div class="modal-label">Kategori</div>
     <select id="add_cat"></select>
     <div class="modal-label">Etiket</div>
@@ -1594,6 +1689,10 @@ header:active{ opacity:0.75; }
     <input id="edit_name"  placeholder="Model adı">
     <input id="edit_price" placeholder="Fiyat (₺)" type="number">
     <input id="edit_img"   placeholder="Resim URL">
+    <a class="imgbb-link" href="https://imgbb.com/" target="_blank">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+      imgbb.com — Fotoğraf yükle &amp; URL al
+    </a>
     <div class="modal-label">Kategori</div>
     <select id="edit_cat"></select>
     <div class="modal-label">Etiket</div>
@@ -1972,6 +2071,17 @@ function render(){
   if(priceFilterActive){
     if(priceFilterMin !== null) filtered = filtered.filter(i => i.price >= priceFilterMin);
     if(priceFilterMax !== null) filtered = filtered.filter(i => i.price <= priceFilterMax);
+  }
+
+  // Admin arama filtresi
+  const adminQuery = (document.getElementById("adminSearchInput")?.value || "").trim().toLowerCase();
+  if(isAdmin && adminQuery){
+    filtered = filtered.filter(i =>
+      (i.name||"").toLowerCase().includes(adminQuery) ||
+      (i.category||"").toLowerCase().includes(adminQuery)
+    );
+    const countEl = document.getElementById("adminSearchCount");
+    if(countEl) countEl.innerHTML = `<strong>${filtered.length}</strong> ürün bulundu`;
   }
 
   const hasLabel = x => Array.isArray(x.label) ? x.label.length > 0 : !!x.label;
@@ -2615,6 +2725,7 @@ window.login = () => {
       document.getElementById("adminPanel").style.display = "none";
       document.getElementById("adminBanner").style.display = "block";
       document.getElementById("adminActionBar").style.display = "flex";
+      document.getElementById("adminSearchBar").style.display = "block";
       document.getElementById("pass").value = "";
       render();
     } else { alert("Hatalı şifre"); }
@@ -2625,8 +2736,28 @@ function logoutAdmin(){
   isAdmin = false;
   document.getElementById("adminBanner").style.display = "none";
   document.getElementById("adminActionBar").style.display = "none";
+  document.getElementById("adminSearchBar").style.display = "none";
+  clearAdminSearch();
   render();
 }
+
+window.onAdminSearch = (val) => {
+  const clearBtn = document.getElementById("adminSearchClear");
+  const countEl  = document.getElementById("adminSearchCount");
+  if(clearBtn) clearBtn.style.display = val ? "block" : "none";
+  if(!val && countEl) countEl.innerHTML = "";
+  render();
+};
+
+window.clearAdminSearch = () => {
+  const inp = document.getElementById("adminSearchInput");
+  const clearBtn = document.getElementById("adminSearchClear");
+  const countEl  = document.getElementById("adminSearchCount");
+  if(inp){ inp.value = ""; inp.focus(); }
+  if(clearBtn) clearBtn.style.display = "none";
+  if(countEl) countEl.innerHTML = "";
+  render();
+};
 
 window.closeAdmin = () => {
   document.getElementById("adminPanel").style.display = "none";
