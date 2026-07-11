@@ -971,24 +971,30 @@ header:active{ opacity:0.75; }
 #viewerClose{
   position:absolute;
   top:16px; right:16px;
-  width:42px; height:42px;
-  border-radius:50%;
+  height:42px;
+  min-width:42px;
+  padding:0 16px;
+  border-radius:30px;
   border:none;
   background:rgba(255,255,255,0.15);
   color:#fff;
-  font-size:18px;
+  font-size:13px;
   font-weight:700;
+  font-family:var(--font-body);
+  letter-spacing:0.2px;
   cursor:pointer;
   display:flex;
   align-items:center;
   justify-content:center;
+  gap:6px;
   backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);
   transition:background 0.15s, transform 0.1s;
   z-index:101;
   line-height:1;
+  white-space:nowrap;
 }
-#viewerClose:active{ transform:scale(0.91); }
+#viewerClose:active{ transform:scale(0.94); }
 #viewerClose:hover{ background:rgba(255,255,255,0.28); }
 @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
 @keyframes toastIn{
@@ -1674,7 +1680,7 @@ header:active{ opacity:0.75; }
 
 <!-- IMAGE VIEWER -->
 <div id="viewer" onclick="closeViewer()">
-  <button id="viewerClose" onclick="closeViewer()" title="Kapat">✕</button>
+  <button id="viewerClose" onclick="closeViewer()" title="Kapat">Fotoğraftan Çık</button>
   <img id="viewerImg">
 </div>
 
@@ -2606,9 +2612,26 @@ window.handleImgClick = (e, src) => {
   e.stopPropagation();
   document.getElementById("viewer").style.display = "flex";
   document.getElementById("viewerImg").src = src;
+  // Tarayıcı/telefon geri tuşuyla kapatılabilsin diye history'e giriş ekle
+  history.pushState({ viewerOpen: true }, "");
 };
 
-window.closeViewer = () => { document.getElementById("viewer").style.display = "none"; };
+window.closeViewer = () => {
+  const wasOpenedFromHistory = history.state && history.state.viewerOpen;
+  document.getElementById("viewer").style.display = "none";
+  if(wasOpenedFromHistory){
+    // pushState ile eklenen geçmiş kaydını geri al
+    history.back();
+  }
+};
+
+// Geri tuşuna basıldığında viewer açıksa sadece onu kapat
+window.addEventListener("popstate", () => {
+  const viewer = document.getElementById("viewer");
+  if(viewer.style.display === "flex"){
+    viewer.style.display = "none";
+  }
+});
 
 window.sendWhatsApp = (e, name, img, id, btn) => {
   e.stopPropagation();
