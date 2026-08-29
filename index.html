@@ -146,19 +146,41 @@ header:active{ opacity:0.75; }
   padding:13px 18px;
   display:flex;
   align-items:center;
-  justify-content:center;
-  gap:12px;
   position:relative;
 }
-.logo{ height:42px; filter:brightness(1.1); }
+.header-brand{
+  flex:1;
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+}
+.logo{
+  height:42px;
+  width:auto;
+  max-width:none;
+  flex-shrink:0;
+  filter:brightness(1.1);
+}
 .header-title{
   font-family:var(--font-display);
   font-size:22px;
   font-weight:600;
   letter-spacing:0.5px;
   color:var(--gold);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  min-width:0;
 }
 .header-title span{ color:var(--gold); }
+
+@media(max-width:380px){
+  .header-brand{ gap:8px; }
+  .logo{ height:34px; }
+  .header-title{ font-size:18px; }
+}
 
 /* ── ADMIN BANNER ── */
 #adminBanner{
@@ -1386,6 +1408,7 @@ header:active{ opacity:0.75; }
 
 .btn-banner-edit{ background:linear-gradient(135deg,#1a4a7a,#2563eb); color:#fff; }
 .btn-location-manage{ background:linear-gradient(135deg,#7a4a1a,#c98a2e); color:#fff; }
+.btn-welcome-edit{ background:linear-gradient(135deg,#7a1a5a,#c9358a); color:#fff; }
 
 /* ── BANNER EDIT MODAL ── */
 .banner-preview-box{
@@ -1546,6 +1569,7 @@ header:active{ opacity:0.75; }
   margin-bottom:8px;
 }
 .gate-title span{ color:var(--text); }
+.gate-title b{ color:var(--text); font-weight:600; }
 .gate-sub{
   font-size:15px;
   color:var(--text2);
@@ -1553,6 +1577,7 @@ header:active{ opacity:0.75; }
   margin-bottom:26px;
   line-height:1.5;
 }
+.gate-sub b{ color:var(--text); font-weight:700; }
 .gate-close-wrap{
   display:none;
   justify-content:flex-end;
@@ -1572,37 +1597,36 @@ header:active{ opacity:0.75; }
 }
 .gate-close-btn:hover{ color:var(--gold); border-color:var(--gold); }
 .gate-locations{
-  display:flex;
-  flex-direction:column;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
   gap:10px;
 }
 .gate-loc-btn{
   width:100%;
-  padding:16px 18px;
+  padding:16px 10px;
   background:var(--surface);
   border:1px solid var(--border2);
   border-radius:var(--radius);
   color:var(--text);
   font-family:var(--font-body);
-  font-size:15.5px;
+  font-size:14px;
   font-weight:600;
   letter-spacing:0.2px;
   cursor:pointer;
   display:flex;
   align-items:center;
-  justify-content:space-between;
+  justify-content:center;
+  text-align:center;
   transition:border-color 0.15s, background 0.15s, transform 0.1s;
 }
 .gate-loc-btn:active{ transform:scale(0.98); }
 .gate-loc-btn:hover{ border-color:var(--gold); background:rgba(201,169,110,0.06); }
-.gate-loc-btn .gate-loc-name{ display:flex; align-items:center; gap:10px; }
-.gate-loc-btn .gate-loc-pin{ font-size:17px; }
-.gate-loc-btn .gate-loc-fee{
-  font-size:11px;
-  color:var(--text3);
-  font-weight:500;
-}
+.gate-loc-btn .gate-loc-name{ display:flex; align-items:center; justify-content:center; gap:8px; }
+.gate-loc-btn .gate-loc-pin{ font-size:16px; }
 .gate-loc-btn.gate-loc-merkez{ border-color:rgba(201,169,110,0.4); }
+@media(max-width:340px){
+  .gate-loc-btn{ font-size:12.5px; padding:14px 8px; }
+}
 .gate-footer{
   margin-top:24px;
   font-size:11.5px;
@@ -1612,10 +1636,7 @@ header:active{ opacity:0.75; }
 
 /* ── HEADER KONUM ROZETİ ── */
 .loc-badge{
-  position:absolute;
-  right:14px;
-  top:50%;
-  transform:translateY(-50%);
+  flex-shrink:0;
   display:flex;
   align-items:center;
   gap:4px;
@@ -1634,7 +1655,7 @@ header:active{ opacity:0.75; }
 }
 .loc-badge:hover{ border-color:var(--gold); }
 @media(max-width:400px){
-  .loc-badge{ position:static; transform:none; margin-left:auto; max-width:96px; }
+  .loc-badge{ max-width:88px; }
 }
 
 /* ════════════════════════════════════════
@@ -1727,8 +1748,8 @@ header:active{ opacity:0.75; }
       <button class="gate-close-btn" onclick="closeLocationGate()">✕ Kapat</button>
     </div>
     <img src="logo.png" class="gate-logo">
-    <div class="gate-title">Ramazan <span>Mermer'e</span><br>Hoşgeldiniz</div>
-    <div class="gate-sub">Fiyatların doğru gösterilmesi için lütfen<br><b style="color:var(--text)">mezarın yapılacağı konumu</b> seçin.</div>
+    <div class="gate-title" id="gateTitle">Ramazan <span>Mermer'e</span><br>Hoşgeldiniz</div>
+    <div class="gate-sub" id="gateSub">Fiyatların doğru gösterilmesi için lütfen<br><b style="color:var(--text)">mezarın yapılacağı konumu</b> seçin.</div>
     <div class="gate-locations" id="gateLocations"></div>
   </div>
 </div>
@@ -1747,8 +1768,10 @@ header:active{ opacity:0.75; }
 <!-- HEADER -->
 <header onclick="secretClick(event)">
   <div class="header-inner">
-    <img src="logo.png" class="logo">
-    <div class="header-title">Ramazan <span>Mermer</span></div>
+    <div class="header-brand">
+      <img src="logo.png" class="logo">
+      <div class="header-title">Ramazan <span>Mermer</span></div>
+    </div>
     <div class="loc-badge" id="locBadge" onclick="openLocationGateForChange(event)">📍 Konum Seç</div>
   </div>
 </header>
@@ -1766,6 +1789,7 @@ header:active{ opacity:0.75; }
   <button class="btn-theme" onclick="openThemeModal()">🎨 Tema</button>
   <button class="btn-stats" onclick="openStatsModal()">📊 İstatistikler</button>
   <button class="btn-banner-edit" onclick="openBannerModal()">📢 Uyarı Banneri</button>
+  <button class="btn-welcome-edit" onclick="openWelcomeModal()">👋 Karşılama Mesajı</button>
 </div>
 
 <!-- ADMIN ÜRÜN ARAMA -->
@@ -2069,6 +2093,14 @@ header:active{ opacity:0.75; }
   <div class="modal-box" style="max-width:380px;">
     <h3>📢 Uyarı Banneri Düzenle</h3>
 
+    <!-- Panel Görünürlüğü -->
+    <div class="banner-section-label">Panel Görünürlüğü</div>
+    <div class="price-direction" style="margin-bottom:4px;">
+      <div class="price-dir-btn active-up" id="bannerVisBtnOn" onclick="setBannerVisibility(true)">👁️ Görünür</div>
+      <div class="price-dir-btn" id="bannerVisBtnOff" onclick="setBannerVisibility(false)">🚫 Tamamen Gizle</div>
+    </div>
+    <div class="banner-hint" id="bannerVisHint" style="margin-bottom:14px;">Banner tüm ziyaretçilere gösteriliyor.</div>
+
     <!-- Canlı Önizleme -->
     <div class="banner-section-label">Önizleme</div>
     <div class="banner-preview-box" id="bannerPreviewBox">
@@ -2126,6 +2158,41 @@ header:active{ opacity:0.75; }
   </div>
 </div>
 
+<!-- KARŞILAMA MESAJI DÜZENLEYİCİ -->
+<div class="modal" id="welcomeModal">
+  <div class="modal-box" style="max-width:380px;">
+    <h3>👋 Karşılama Mesajını Düzenle</h3>
+    <p style="font-size:11.5px;color:var(--text2);margin-bottom:8px;line-height:1.6;">
+      Bu ekran, ziyaretçi siteye girerken konum seçmeden önce gördüğü ilk ekrandır.
+    </p>
+
+    <!-- Canlı Önizleme -->
+    <div class="banner-section-label">Önizleme</div>
+    <div class="banner-preview-box" id="welcomePreviewBox" style="background:var(--bg);border:1px solid var(--border2);text-align:center;padding:22px 14px;">
+      <div id="welcomePreviewTitle" class="gate-title" style="font-size:26px;margin-bottom:8px;"></div>
+      <div id="welcomePreviewSub" class="gate-sub" style="font-size:13px;margin-bottom:0;"></div>
+    </div>
+
+    <!-- Başlık -->
+    <div class="banner-section-label">Başlık</div>
+    <textarea class="banner-textarea" id="welcomeTitleInput" oninput="updateWelcomePreview()" style="min-height:60px;" placeholder="Örn: Ramazan **Mermer'e**&#10;Hoşgeldiniz"></textarea>
+
+    <!-- Alt Mesaj -->
+    <div class="banner-section-label">Alt Mesaj</div>
+    <textarea class="banner-textarea" id="welcomeSubInput" oninput="updateWelcomePreview()" style="min-height:70px;" placeholder="Örn: Fiyatların doğru gösterilmesi için lütfen&#10;**mezarın yapılacağı konumu** seçin."></textarea>
+    <div class="banner-hint">
+      Beyaz renkle vurgulamak için: <code>**metin**</code><br>
+      Satır atlamak için Enter'a basın.
+    </div>
+
+    <!-- Butonlar -->
+    <div class="btn-group" style="margin-top:16px;">
+      <button class="btn-dark" onclick="saveWelcomeSettings()" style="background:#c9358a;color:#fff;">💾 Kaydet</button>
+      <button class="btn-gray" onclick="closeModal('welcomeModal')">İptal</button>
+    </div>
+  </div>
+</div>
+
 <!-- FIREBASE -->
 <!-- ── İSTATİSTİK MODAL ── -->
 <div class="modal" id="statsModal">
@@ -2172,13 +2239,20 @@ const catBar      = document.getElementById("catBar");
 })();
 
 // ── BANNER AYARLARINI FIREBASE'DEN OKU ──
+let bannerSettingsCache = null;
 onValue(ref(db,"bannerSettings"), snapshot => {
   const s = snapshot.val();
+  bannerSettingsCache = s;
   if(s) applyBannerSettings(s);
 });
 
 function applyBannerSettings(s){
   const banner = document.getElementById("infoBanner");
+  if(s.enabled === false){
+    banner.style.display = "none";
+    return;
+  }
+  banner.style.display = "";
   if(s.bgColor)     banner.style.background    = s.bgColor;
   if(s.borderColor){ banner.style.borderTopColor = s.borderColor; banner.style.borderBottomColor = s.borderColor; }
   if(s.textColor)   banner.querySelector("p").style.color = s.textColor;
@@ -2192,6 +2266,27 @@ function parseBannerText(raw, textColor, highlightColor){
   return raw
     .replace(/\[vurgu\](.*?)\[\/vurgu\]/g, `<strong style="color:${textColor};background:${highlightColor};">$1</strong>`)
     .replace(/\n/g, "<br>");
+}
+
+// ── KARŞILAMA (GATE) MESAJI AYARLARINI FIREBASE'DEN OKU ──
+let gateSettingsCache = null;
+onValue(ref(db,"gateSettings"), snapshot => {
+  const s = snapshot.val();
+  gateSettingsCache = s;
+  if(s) applyGateSettings(s);
+});
+
+function parseGateText(raw){
+  return (raw||"")
+    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+    .replace(/\n/g, "<br>");
+}
+
+function applyGateSettings(s){
+  const titleEl = document.getElementById("gateTitle");
+  const subEl   = document.getElementById("gateSub");
+  if(titleEl && s.title) titleEl.innerHTML = parseGateText(s.title);
+  if(subEl && s.subtitle) subEl.innerHTML  = parseGateText(s.subtitle);
 }
 
 let modelsData     = [];
@@ -2275,7 +2370,6 @@ function renderGateLocations(){
     btn.className = "gate-loc-btn" + (idx===0 ? " gate-loc-merkez" : "");
     btn.innerHTML = `
       <span class="gate-loc-name"><span class="gate-loc-pin">📍</span> ${loc.name}</span>
-      <span class="gate-loc-fee">${loc.fee>0 ? "+"+loc.fee.toLocaleString('tr-TR')+"₺ nakliyat" : "Ek ücret yok"}</span>
     `;
     btn.onclick = () => chooseLocation(loc);
     wrap.appendChild(btn);
@@ -2602,10 +2696,8 @@ function render(){
       ? `<div class="card-cat">${item.category}</div>` : "";
 
     const displayPrice = getDisplayPrice(item.price);
-    const fee = getFee();
-    const priceNote = fee > 0
-      ? `<div class="card-price-note">${selectedLocation.name} nakliyatı (+${fee.toLocaleString('tr-TR')}₺) dahildir</div>`
-      : (selectedLocation ? `<div class="card-price-note">${selectedLocation.name} — nakliyat ücreti yoktur</div>` : "");
+    // Nakliyat ücreti/bilgisi ziyaretçilere gösterilmez; sadece toplam fiyat (nakliyat dahil) görünür.
+    const priceNote = "";
 
     div.innerHTML = `
       <div class="card-img-wrap">
@@ -3085,13 +3177,14 @@ window.sendWhatsApp = (e, name, img, id, btn) => {
     const key = id.replace(/[.#$/[\]]/g,"_");
     update(ref(db,"stats/products/"+key), { name, count: increment(1) });
   }
-  // Görüntülenen ürünün fiyatını (nakliyat dahil) bul
+  // Görüntülenen ürünün toplam fiyatını (nakliyat dahil, ama ayrıca belirtilmeden) bul
   const item = modelsData.find(m => m.id === id);
   const dPrice = item ? getDisplayPrice(item.price) : null;
+  // Not: Nakliyat ücreti WhatsApp mesajında ayrıca belirtilmez — sadece konum adı ve toplam fiyat gönderilir.
   const locLine = selectedLocation
-    ? `\n📍 Konum: ${selectedLocation.name}${getFee()>0 ? " (+"+getFee().toLocaleString('tr-TR')+"₺ nakliyat dahil)" : ""}`
+    ? `\n📍 Konum: ${selectedLocation.name}`
     : "";
-  const priceLine = dPrice !== null ? `\n💰 Görüntülenen Fiyat: ${dPrice.toLocaleString('tr-TR')}₺` : "";
+  const priceLine = dPrice !== null ? `\n💰 Toplam Fiyat: ${dPrice.toLocaleString('tr-TR')}₺` : "";
   const msg = `Merhaba, ${name} modeli hakkında bilgi almak istiyorum.${locLine}${priceLine}\n\n📷 Ürün görseli:\n${img}`;
   const isCityOnly = btn && btn.dataset.citydelivery === "true";
   if(isCityOnly){
@@ -3279,11 +3372,33 @@ window.closeAdmin = () => {
 
 // ── BANNER MODAL FONKSİYONLARI ──
 let currentBannerIcon = "⚠️";
+let bannerHidden = false;
+
+window.setBannerVisibility = (visible) => {
+  bannerHidden = !visible;
+  updateBannerVisibilityUI();
+};
+
+function updateBannerVisibilityUI(){
+  const onBtn  = document.getElementById("bannerVisBtnOn");
+  const offBtn = document.getElementById("bannerVisBtnOff");
+  const hint   = document.getElementById("bannerVisHint");
+  if(!onBtn || !offBtn) return;
+  onBtn.className  = "price-dir-btn" + (!bannerHidden ? " active-up"   : "");
+  offBtn.className = "price-dir-btn" + (bannerHidden  ? " active-down" : "");
+  if(hint) hint.textContent = bannerHidden
+    ? "Banner tamamen gizli — hiçbir ziyaretçiye gösterilmiyor."
+    : "Banner tüm ziyaretçilere gösteriliyor.";
+}
 
 window.openBannerModal = () => {
   // Mevcut banner değerlerini forma doldur
   const banner = document.getElementById("infoBanner");
   const p      = banner.querySelector("p");
+
+  // Görünürlük durumunu yükle
+  bannerHidden = !!(bannerSettingsCache && bannerSettingsCache.enabled === false);
+  updateBannerVisibilityUI();
 
   // Arka plan ve çizgi renklerini al
   document.getElementById("bannerBgColor").value     = rgbToHex(banner.style.background) || "#ffffff";
@@ -3341,6 +3456,7 @@ window.updateBannerPreview = () => {
 
 window.saveBannerSettings = async () => {
   const settings = {
+    enabled:        !bannerHidden,
     icon:           currentBannerIcon,
     text:           document.getElementById("bannerTextInput").value,
     bgColor:        document.getElementById("bannerBgColor").value,
@@ -3349,9 +3465,57 @@ window.saveBannerSettings = async () => {
     highlightColor: document.getElementById("bannerHighlightColor").value,
   };
   await set(ref(db,"bannerSettings"), settings);
+  bannerSettingsCache = settings;
   applyBannerSettings(settings);
   document.getElementById("bannerModal").style.display = "none";
-  alert("✅ Banner güncellendi!");
+  alert(bannerHidden ? "✅ Banner tamamen gizlendi!" : "✅ Banner güncellendi!");
+};
+
+// ── KARŞILAMA (GATE) MESAJI MODAL FONKSİYONLARI ──
+function gateHtmlToRaw(html){
+  return (html||"")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<(?:span|b|strong)[^>]*>(.*?)<\/(?:span|b|strong)>/gi, "**$1**")
+    .replace(/<[^>]+>/g, "")
+    .trim();
+}
+
+window.openWelcomeModal = () => {
+  const titleEl = document.getElementById("gateTitle");
+  const subEl   = document.getElementById("gateSub");
+  const titleRaw = (gateSettingsCache && gateSettingsCache.title)
+    ? gateSettingsCache.title
+    : gateHtmlToRaw(titleEl.innerHTML);
+  const subRaw = (gateSettingsCache && gateSettingsCache.subtitle)
+    ? gateSettingsCache.subtitle
+    : gateHtmlToRaw(subEl.innerHTML);
+  document.getElementById("welcomeTitleInput").value = titleRaw;
+  document.getElementById("welcomeSubInput").value   = subRaw;
+  updateWelcomePreview();
+  document.getElementById("welcomeModal").style.display = "flex";
+};
+
+window.updateWelcomePreview = () => {
+  const title = document.getElementById("welcomeTitleInput").value;
+  const sub   = document.getElementById("welcomeSubInput").value;
+  document.getElementById("welcomePreviewTitle").innerHTML = parseGateText(title);
+  document.getElementById("welcomePreviewSub").innerHTML   = parseGateText(sub);
+};
+
+window.saveWelcomeSettings = async () => {
+  const settings = {
+    title:    document.getElementById("welcomeTitleInput").value,
+    subtitle: document.getElementById("welcomeSubInput").value,
+  };
+  if(!settings.title.trim() || !settings.subtitle.trim()){
+    alert("Başlık ve alt mesaj boş olamaz");
+    return;
+  }
+  await set(ref(db,"gateSettings"), settings);
+  gateSettingsCache = settings;
+  applyGateSettings(settings);
+  document.getElementById("welcomeModal").style.display = "none";
+  alert("✅ Karşılama mesajı güncellendi!");
 };
 
 function rgbToHex(color){
