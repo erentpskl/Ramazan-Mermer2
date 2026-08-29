@@ -869,6 +869,12 @@ header:active{ opacity:0.75; }
   font-size:19px;
   font-weight:700;
   color:var(--gold2);
+  margin-bottom:2px;
+}
+.card-price-note{
+  font-size:10.5px;
+  color:var(--text3);
+  font-weight:500;
   margin-bottom:9px;
 }
 .wp-item{
@@ -1158,7 +1164,51 @@ header:active{ opacity:0.75; }
 }
 .btn-cat-up:hover,.btn-cat-down:hover{ background:var(--gold) !important; color:#000 !important; border-color:var(--gold) !important; }
 
-/* ── PRICE EDITOR ── */
+/* ── KONUM (ŞUBE/BÖLGE) LİSTESİ ── */
+.loc-list-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 10px;
+  background:var(--surface2);
+  border-radius:var(--radius-sm);
+  margin-bottom:6px;
+  font-size:13px;
+  color:var(--text);
+  border:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.loc-list-name{
+  flex:1 1 100%;
+  font-weight:600;
+  margin-bottom:4px;
+}
+.loc-fee-wrap{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  flex:1;
+  min-width:120px;
+}
+.loc-fee-wrap label{
+  font-size:10px;
+  color:var(--text3);
+  white-space:nowrap;
+}
+.loc-fee-wrap input{
+  width:100%;
+  padding:6px 8px;
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:6px;
+  color:var(--gold2);
+  font-family:var(--font-body);
+  font-size:12.5px;
+  font-weight:700;
+}
+.loc-fee-wrap input:focus{ outline:none; border-color:var(--gold); }
+
+/* ── FİYAT DÜZENLEYİCİ ── (also reused sizing below) */
 .price-editor-type{
   display:flex;
   gap:8px;
@@ -1335,6 +1385,7 @@ header:active{ opacity:0.75; }
 .card:nth-child(n+9){animation-delay:400ms}
 
 .btn-banner-edit{ background:linear-gradient(135deg,#1a4a7a,#2563eb); color:#fff; }
+.btn-location-manage{ background:linear-gradient(135deg,#7a4a1a,#c98a2e); color:#fff; }
 
 /* ── BANNER EDIT MODAL ── */
 .banner-preview-box{
@@ -1450,6 +1501,143 @@ header:active{ opacity:0.75; }
 }
 
 /* ════════════════════════════════════════
+   KONUM SEÇİM EKRANI (SİTE ÖNCESİ GATE)
+   ════════════════════════════════════════ */
+#locationGate{
+  display:flex;
+  position:fixed;
+  inset:0;
+  z-index:500;
+  background:var(--bg);
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:28px 18px;
+  overflow-y:auto;
+  animation:fadeIn 0.25s;
+}
+#locationGate::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+  opacity:0.5;
+}
+.gate-inner{
+  position:relative;
+  z-index:1;
+  width:100%;
+  max-width:420px;
+  text-align:center;
+}
+.gate-logo{
+  height:64px;
+  margin-bottom:18px;
+  filter:brightness(1.1);
+}
+.gate-title{
+  font-family:var(--font-display);
+  font-size:32px;
+  font-weight:600;
+  color:var(--gold);
+  letter-spacing:0.3px;
+  line-height:1.25;
+  margin-bottom:8px;
+}
+.gate-title span{ color:var(--text); }
+.gate-sub{
+  font-size:15px;
+  color:var(--text2);
+  font-weight:500;
+  margin-bottom:26px;
+  line-height:1.5;
+}
+.gate-close-wrap{
+  display:none;
+  justify-content:flex-end;
+  margin-bottom:6px;
+}
+.gate-close-wrap.show{ display:flex; }
+.gate-close-btn{
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  color:var(--text2);
+  font-family:var(--font-body);
+  font-size:12px;
+  font-weight:600;
+  padding:8px 14px;
+  border-radius:30px;
+  cursor:pointer;
+}
+.gate-close-btn:hover{ color:var(--gold); border-color:var(--gold); }
+.gate-locations{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.gate-loc-btn{
+  width:100%;
+  padding:16px 18px;
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:var(--radius);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:15.5px;
+  font-weight:600;
+  letter-spacing:0.2px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  transition:border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.gate-loc-btn:active{ transform:scale(0.98); }
+.gate-loc-btn:hover{ border-color:var(--gold); background:rgba(201,169,110,0.06); }
+.gate-loc-btn .gate-loc-name{ display:flex; align-items:center; gap:10px; }
+.gate-loc-btn .gate-loc-pin{ font-size:17px; }
+.gate-loc-btn .gate-loc-fee{
+  font-size:11px;
+  color:var(--text3);
+  font-weight:500;
+}
+.gate-loc-btn.gate-loc-merkez{ border-color:rgba(201,169,110,0.4); }
+.gate-footer{
+  margin-top:24px;
+  font-size:11.5px;
+  color:var(--text3);
+  line-height:1.6;
+}
+
+/* ── HEADER KONUM ROZETİ ── */
+.loc-badge{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  display:flex;
+  align-items:center;
+  gap:4px;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:30px;
+  padding:6px 10px;
+  font-size:11px;
+  font-weight:600;
+  color:var(--gold);
+  cursor:pointer;
+  white-space:nowrap;
+  max-width:120px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.loc-badge:hover{ border-color:var(--gold); }
+@media(max-width:400px){
+  .loc-badge{ position:static; transform:none; margin-left:auto; max-width:96px; }
+}
+
+/* ════════════════════════════════════════
    PC WRAPPER
    ════════════════════════════════════════ */
 #page-wrapper{
@@ -1532,6 +1720,19 @@ header:active{ opacity:0.75; }
 
 <body>
 
+<!-- KONUM SEÇİM EKRANI (SİTE ÖNCESİ) -->
+<div id="locationGate">
+  <div class="gate-inner">
+    <div class="gate-close-wrap" id="gateCloseWrap">
+      <button class="gate-close-btn" onclick="closeLocationGate()">✕ Kapat</button>
+    </div>
+    <img src="logo.png" class="gate-logo">
+    <div class="gate-title">Ramazan <span>Mermer'e</span><br>Hoşgeldiniz</div>
+    <div class="gate-sub">Fiyatların doğru gösterilmesi için lütfen<br><b style="color:var(--text)">mezarın yapılacağı konumu</b> seçin.</div>
+    <div class="gate-locations" id="gateLocations"></div>
+  </div>
+</div>
+
 <!-- INFO BANNER -->
 <div id="infoBanner">
   <span class="banner-icon">⚠️</span>
@@ -1544,10 +1745,11 @@ header:active{ opacity:0.75; }
 </div>
 
 <!-- HEADER -->
-<header onclick="secretClick()">
+<header onclick="secretClick(event)">
   <div class="header-inner">
     <img src="logo.png" class="logo">
     <div class="header-title">Ramazan <span>Mermer</span></div>
+    <div class="loc-badge" id="locBadge" onclick="openLocationGateForChange(event)">📍 Konum Seç</div>
   </div>
 </header>
 
@@ -1560,6 +1762,7 @@ header:active{ opacity:0.75; }
   <button class="btn-manage-cat" onclick="openCatModal()">🗂️ Kategoriler</button>
   <button class="btn-order" onclick="openOrderModal()">↕️ Sıralama</button>
   <button class="btn-price-editor" onclick="openPriceEditor()">💰 Fiyat Düzenleyici</button>
+  <button class="btn-location-manage" onclick="openLocationModal()">🚚 Konum &amp; Nakliyat</button>
   <button class="btn-theme" onclick="openThemeModal()">🎨 Tema</button>
   <button class="btn-stats" onclick="openStatsModal()">📊 İstatistikler</button>
   <button class="btn-banner-edit" onclick="openBannerModal()">📢 Uyarı Banneri</button>
@@ -1703,7 +1906,7 @@ header:active{ opacity:0.75; }
     <input id="add_name" placeholder="Model adı" oninput="onAddNameInput(this)">
     <div class="name-warning" id="add_name_warning">⚠️ Bu isimde bir ürün zaten mevcut!</div>
     <div class="name-suggestion" id="add_name_suggestion" onclick="applyAddSuggestion()"></div>
-    <input id="add_price" placeholder="Fiyat (₺)" type="number">
+    <input id="add_price" placeholder="Fiyat (₺) — Karabük Merkez baz fiyatı" type="number">
     <input id="add_img" placeholder="Resim URL">
     <a class="imgbb-link" href="https://imgbb.com/" target="_blank">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
@@ -1731,7 +1934,7 @@ header:active{ opacity:0.75; }
     <h3>✏️ Ürünü Düzenle</h3>
     <input id="edit_name"  placeholder="Model adı" oninput="onEditNameInput(this)">
     <div class="name-warning" id="edit_name_warning">⚠️ Bu isimde başka bir ürün zaten mevcut!</div>
-    <input id="edit_price" placeholder="Fiyat (₺)" type="number">
+    <input id="edit_price" placeholder="Fiyat (₺) — Karabük Merkez baz fiyatı" type="number">
     <input id="edit_img"   placeholder="Resim URL">
     <a class="imgbb-link" href="https://imgbb.com/" target="_blank">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
@@ -1781,6 +1984,35 @@ header:active{ opacity:0.75; }
   </div>
 </div>
 
+<!-- KONUM & NAKLİYAT YÖNETİMİ -->
+<div class="modal" id="locationModal">
+  <div class="modal-box">
+    <h3>🚚 Konum &amp; Nakliyat Yönetimi</h3>
+    <p style="font-size:11.5px;color:var(--text2);margin-bottom:8px;line-height:1.6;">
+      Buradaki konumlar, ziyaretçilerin siteye girerken seçtiği listedir. Her konum için girilen <b>nakliyat ücreti</b>,
+      o konumu seçen ziyaretçilere gösterilen tüm fiyatlara otomatik olarak eklenir.
+    </p>
+    <input id="new_loc_name" placeholder="Yeni konum / ilçe adı">
+    <div class="btn-group">
+      <button class="btn-dark" onclick="addLocation()">+ Ekle</button>
+      <button class="btn-gray" onclick="closeModal('locationModal')">Kapat</button>
+    </div>
+    <div style="margin-top:14px;" id="locationListContainer"></div>
+  </div>
+</div>
+
+<!-- KONUM YENİDEN ADLANDIR -->
+<div class="modal" id="locationRenameModal">
+  <div class="modal-box">
+    <h3>✏️ Konum Adını Değiştir</h3>
+    <input id="rename_loc_input" placeholder="Yeni ad">
+    <div class="btn-group">
+      <button class="btn-orange" onclick="saveLocationRename()">Kaydet</button>
+      <button class="btn-gray" onclick="closeModal('locationRenameModal')">İptal</button>
+    </div>
+  </div>
+</div>
+
 <!-- SIRALAMA -->
 <div class="modal" id="orderModal">
   <div class="modal-box">
@@ -1810,6 +2042,7 @@ header:active{ opacity:0.75; }
 <div class="modal" id="priceEditorModal">
   <div class="modal-box">
     <h3>💰 Fiyat Düzenleyici</h3>
+    <p style="font-size:11px;color:var(--text3);margin-bottom:6px;">Bu ekrandaki fiyatlar Karabük Merkez baz fiyatlarıdır (nakliyat hariç).</p>
     <div class="modal-label">İşlem Türü</div>
     <div class="price-editor-type">
       <div class="price-type-btn active" id="ptype_pct" onclick="setPriceType('pct')">% Yüzde</div>
@@ -1974,6 +2207,206 @@ let priceFilterMax = null;
 let priceFilterActive = false;
 let activeThemeId  = "dark-gold";
 
+/* ══════════════════════════════════════════
+   KONUM (ŞUBE/BÖLGE) & NAKLİYAT SİSTEMİ
+   ══════════════════════════════════════════ */
+const DEFAULT_LOCATIONS = [
+  "Karabük/Merkez","Safranbolu","Eflani","Ovacuma","Toprakçuma",
+  "Yenice","Yörtan","Eskipazar","Ovacık"
+];
+
+let locationsData    = [];   // [{id,name,order,fee}]
+let selectedLocation = null; // {id,name,fee}
+let locationsSeeded  = false;
+
+// Konumları Firebase'den oku
+onValue(ref(db,"locations"), snap => {
+  const data = snap.val();
+  if(!data){
+    locationsData = [];
+    // İlk çalıştırmada varsayılan konumları oluştur (sadece bir kez)
+    if(!locationsSeeded){
+      locationsSeeded = true;
+      seedDefaultLocations();
+    }
+  } else {
+    locationsData = Object.entries(data).map(([id,item]) => ({
+      id, name:item.name, order:item.order??9999, fee:Number(item.fee)||0
+    }));
+    locationsData.sort((a,b) => a.order - b.order);
+  }
+  renderGateLocations();
+  renderLocationList();
+  syncSelectedLocationWithData();
+});
+
+function seedDefaultLocations(){
+  const updates = {};
+  DEFAULT_LOCATIONS.forEach((name, i) => {
+    const newRef = push(ref(db,"locations"));
+    updates[newRef.key] = { name, order:i, fee:0 };
+  });
+  update(ref(db,"locations"), updates);
+}
+
+// Firebase'den veri gelince, seçili konumun güncel fee'sini tazele
+function syncSelectedLocationWithData(){
+  if(selectedLocation && locationsData.length){
+    const match = locationsData.find(l => l.id === selectedLocation.id) ||
+                  locationsData.find(l => l.name === selectedLocation.name);
+    if(match){
+      selectedLocation = { id:match.id, name:match.name, fee:match.fee };
+      updateLocBadge();
+      render();
+    }
+  }
+}
+
+function renderGateLocations(){
+  const wrap = document.getElementById("gateLocations");
+  if(!wrap) return;
+  wrap.innerHTML = "";
+  if(locationsData.length === 0){
+    wrap.innerHTML = `<div style="color:var(--text3);font-size:13px;">Konumlar yükleniyor...</div>`;
+    return;
+  }
+  locationsData.forEach((loc, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "gate-loc-btn" + (idx===0 ? " gate-loc-merkez" : "");
+    btn.innerHTML = `
+      <span class="gate-loc-name"><span class="gate-loc-pin">📍</span> ${loc.name}</span>
+      <span class="gate-loc-fee">${loc.fee>0 ? "+"+loc.fee.toLocaleString('tr-TR')+"₺ nakliyat" : "Ek ücret yok"}</span>
+    `;
+    btn.onclick = () => chooseLocation(loc);
+    wrap.appendChild(btn);
+  });
+}
+
+window.chooseLocation = (loc) => {
+  selectedLocation = { id:loc.id, name:loc.name, fee:loc.fee };
+  document.getElementById("locationGate").style.display = "none";
+  updateLocBadge();
+  render();
+};
+
+function updateLocBadge(){
+  const badge = document.getElementById("locBadge");
+  if(!badge) return;
+  if(selectedLocation){
+    badge.textContent = "📍 " + selectedLocation.name;
+  } else {
+    badge.textContent = "📍 Konum Seç";
+  }
+}
+
+window.openLocationGateForChange = (e) => {
+  if(e) e.stopPropagation();
+  const gate = document.getElementById("locationGate");
+  document.getElementById("gateCloseWrap").classList.add("show");
+  gate.style.display = "flex";
+};
+
+window.closeLocationGate = () => {
+  if(!selectedLocation){
+    alert("Devam etmek için lütfen bir konum seçin.");
+    return;
+  }
+  document.getElementById("locationGate").style.display = "none";
+};
+
+// Not: konum seçimi kalıcı olarak saklanmaz — her site girişinde (her sayfa yüklemesinde)
+// ziyaretçiye konum tekrar sorulur. #locationGate varsayılan olarak açık (display:flex) gelir.
+
+// Seçili konumun nakliyat ücretini döndürür
+function getFee(){
+  return selectedLocation ? (Number(selectedLocation.fee)||0) : 0;
+}
+// Baz fiyata nakliyatı ekleyip görüntülenecek fiyatı döndürür
+function getDisplayPrice(basePrice){
+  return Math.round((Number(basePrice)||0) + getFee());
+}
+
+/* ── ADMİN: KONUM YÖNETİMİ ── */
+window.openLocationModal = () => {
+  renderLocationList();
+  document.getElementById("locationModal").style.display = "flex";
+};
+
+function renderLocationList(){
+  const container = document.getElementById("locationListContainer");
+  if(!container) return;
+  container.innerHTML = "";
+  if(locationsData.length === 0){
+    container.innerHTML = `<p style="font-size:13px;color:var(--text3);text-align:center;">Henüz konum yok</p>`;
+    return;
+  }
+  locationsData.forEach((loc, idx) => {
+    const row = document.createElement("div");
+    row.className = "loc-list-item";
+    row.innerHTML = `
+      <span class="loc-list-name">${idx+1}. ${loc.name}${idx===0 ? ' <span style="color:var(--text3);font-weight:400;">(baz konum)</span>':''}</span>
+      <div class="loc-fee-wrap">
+        <label>Nakliyat ₺</label>
+        <input type="number" min="0" value="${loc.fee}" onchange="updateLocationFee('${loc.id}', this.value)">
+      </div>
+      <div class="cat-item-actions">
+        <button class="btn-cat-up" onclick="moveLoc(${idx},-1)" title="Yukarı">▲</button>
+        <button class="btn-cat-down" onclick="moveLoc(${idx},1)" title="Aşağı">▼</button>
+        <button class="btn-cat-rename" onclick="openLocationRename('${loc.id}','${loc.name.replace(/'/g,"\\'")}')">✏️</button>
+        <button class="btn-cat-del" onclick="deleteLocation('${loc.id}','${loc.name.replace(/'/g,"\\'")}')">Sil</button>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+window.addLocation = () => {
+  const name = document.getElementById("new_loc_name").value.trim();
+  if(!name){ alert("Konum adı gir"); return; }
+  if(locationsData.find(l => l.name.toLowerCase() === name.toLowerCase())){ alert("Bu konum zaten var"); return; }
+  set(push(ref(db,"locations")), { name, order:locationsData.length, fee:0 });
+  document.getElementById("new_loc_name").value = "";
+};
+
+window.updateLocationFee = (id, val) => {
+  const fee = Math.max(0, parseInt(val)||0);
+  update(ref(db,"locations/"+id), { fee });
+};
+
+window.moveLoc = (idx, dir) => {
+  const newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= locationsData.length) return;
+  const tmp = locationsData[idx]; locationsData[idx] = locationsData[newIdx]; locationsData[newIdx] = tmp;
+  locationsData.forEach((loc, i) => {
+    update(ref(db,"locations/" + loc.id), { order: i });
+  });
+  renderLocationList();
+};
+
+window.deleteLocation = (id, name) => {
+  if(locationsData.length <= 1){ alert("En az bir konum kalmalı."); return; }
+  if(!confirm(`"${name}" konumunu silmek istediğinden emin misin?`)) return;
+  remove(ref(db,"locations/" + id));
+};
+
+let renamingLocId = null;
+window.openLocationRename = (id, name) => {
+  renamingLocId = id;
+  document.getElementById("rename_loc_input").value = name;
+  document.getElementById("locationRenameModal").style.display = "flex";
+};
+window.saveLocationRename = () => {
+  if(!renamingLocId) return;
+  const newName = document.getElementById("rename_loc_input").value.trim();
+  if(!newName){ alert("Ad boş olamaz"); return; }
+  if(locationsData.find(l => l.name.toLowerCase() === newName.toLowerCase() && l.id !== renamingLocId)){
+    alert("Bu isim zaten kullanılıyor"); return;
+  }
+  update(ref(db,"locations/" + renamingLocId), { name: newName });
+  document.getElementById("locationRenameModal").style.display = "none";
+  renamingLocId = null;
+};
+
 /* ── TEMA TANIMLARI ── */
 const THEMES = [
   /* ── 5 KOYU TEMA ── */
@@ -2111,10 +2544,10 @@ function render(){
     ? [...modelsData]
     : modelsData.filter(i => i.category === activeCat);
 
-  // Fiyat filtresi uygula
+  // Fiyat filtresi uygula (nakliyat dahil görüntülenen fiyat üzerinden)
   if(priceFilterActive){
-    if(priceFilterMin !== null) filtered = filtered.filter(i => i.price >= priceFilterMin);
-    if(priceFilterMax !== null) filtered = filtered.filter(i => i.price <= priceFilterMax);
+    if(priceFilterMin !== null) filtered = filtered.filter(i => getDisplayPrice(i.price) >= priceFilterMin);
+    if(priceFilterMax !== null) filtered = filtered.filter(i => getDisplayPrice(i.price) <= priceFilterMax);
   }
 
   // Admin arama filtresi
@@ -2168,6 +2601,12 @@ function render(){
     const catLabel = item.category
       ? `<div class="card-cat">${item.category}</div>` : "";
 
+    const displayPrice = getDisplayPrice(item.price);
+    const fee = getFee();
+    const priceNote = fee > 0
+      ? `<div class="card-price-note">${selectedLocation.name} nakliyatı (+${fee.toLocaleString('tr-TR')}₺) dahildir</div>`
+      : (selectedLocation ? `<div class="card-price-note">${selectedLocation.name} — nakliyat ücreti yoktur</div>` : "");
+
     div.innerHTML = `
       <div class="card-img-wrap">
         <img src="${item.img}" onclick="handleImgClick(event,'${item.img}')">
@@ -2176,7 +2615,8 @@ function render(){
       <div class="card-info">
         ${catLabel}
         <div class="card-name">${item.name}</div>
-        <div class="card-price">${item.price.toLocaleString('tr-TR')}₺</div>
+        <div class="card-price">${displayPrice.toLocaleString('tr-TR')}₺</div>
+        ${priceNote}
         <button class="wp-item" data-citydelivery="${labels.includes('citydelivery')}" onclick="sendWhatsApp(event,'${item.name}','${item.img}','${item.id}',this)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           WhatsApp'tan sor
@@ -2259,13 +2699,14 @@ window.addCategory = () => {
   document.getElementById("new_cat_name").value = "";
 };
 
-/* ── FİYAT FİLTRESİ ── */
+/* ── FİYAT FİLTRESİ ── (nakliyat dahil görüntülenen fiyat aralığı üzerinden çalışır) */
 let pfRangeMin = 0, pfRangeMax = 1000000;
 let pfCurMin = 0, pfCurMax = 1000000;
 
 function initPriceFilter(){
   if(modelsData.length === 0) return;
-  const prices = modelsData.map(m => m.price).filter(Boolean);
+  const prices = modelsData.map(m => getDisplayPrice(m.price)).filter(Boolean);
+  if(prices.length === 0) return;
   pfRangeMin = Math.floor(Math.min(...prices) / 1000) * 1000;
   pfRangeMax = Math.ceil(Math.max(...prices) / 1000) * 1000;
   if(!priceFilterActive){
@@ -2380,7 +2821,10 @@ window.onPfInputChange = () => {
 };
 
 function updatePfResultCount(minV, maxV){
-  const count = modelsData.filter(m => m.price >= minV && m.price <= maxV).length;
+  const count = modelsData.filter(m => {
+    const dp = getDisplayPrice(m.price);
+    return dp >= minV && dp <= maxV;
+  }).length;
   const el = document.getElementById("pfResultCount");
   el.innerHTML = `<strong>${count}</strong> ürün bu aralıkta`;
   el.classList.add("show");
@@ -2641,7 +3085,14 @@ window.sendWhatsApp = (e, name, img, id, btn) => {
     const key = id.replace(/[.#$/[\]]/g,"_");
     update(ref(db,"stats/products/"+key), { name, count: increment(1) });
   }
-  const msg = `Merhaba, ${name} modeli hakkında bilgi almak istiyorum.\n\n📷 Ürün görseli:\n${img}`;
+  // Görüntülenen ürünün fiyatını (nakliyat dahil) bul
+  const item = modelsData.find(m => m.id === id);
+  const dPrice = item ? getDisplayPrice(item.price) : null;
+  const locLine = selectedLocation
+    ? `\n📍 Konum: ${selectedLocation.name}${getFee()>0 ? " (+"+getFee().toLocaleString('tr-TR')+"₺ nakliyat dahil)" : ""}`
+    : "";
+  const priceLine = dPrice !== null ? `\n💰 Görüntülenen Fiyat: ${dPrice.toLocaleString('tr-TR')}₺` : "";
+  const msg = `Merhaba, ${name} modeli hakkında bilgi almak istiyorum.${locLine}${priceLine}\n\n📷 Ürün görseli:\n${img}`;
   const isCityOnly = btn && btn.dataset.citydelivery === "true";
   if(isCityOnly){
     showCityToast(() => {
@@ -2751,7 +3202,8 @@ window.openStatsModal = async () => {
 };
 
 let clickCount = 0, timer;
-window.secretClick = () => {
+window.secretClick = (e) => {
+  if(e && e.target && e.target.closest && e.target.closest("#locBadge")) return;
   if(isAdmin){
     clickCount++; clearTimeout(timer);
     timer = setTimeout(()=>clickCount=0, 1500);
